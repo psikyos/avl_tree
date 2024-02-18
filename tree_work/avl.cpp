@@ -8,8 +8,9 @@
 #include "avl_iter_using_height.h"
 #include "avl_book.h"
 #include "avl_iter.h"
-#include "remove_node_yandaonan.h"
+#include "remove_node_yandaonan_using_height.h"
 #include "remove_node_geek.h"
+#include "remove_node_ydn_rule.h"
 
 //返回字符,如需数字,则使用atoi转换
 string get_ini_value(string section, string key, string filename) {
@@ -123,7 +124,8 @@ void all_traverse(AVLTree *T,int whether_display_bf)//遍历AVL树,whether_displ
 */
 AVLTree* createAVLTree(AVLTree *T)
 {
-	printf("root's node version AVL iter_rule_bf:");
+	//printf("root's node version AVL iter_rule_bf:");
+	printf("AVLTree.separated by ',' or space,end with '#':");
 	char ch;
 	size_t num;
 	int taller=0;//variable for book
@@ -137,7 +139,7 @@ AVLTree* createAVLTree(AVLTree *T)
 //			T=insert_avl_node_iter_with_height(T,num);//使用树高计算bf,建立avl树
 			T=insert_avl_node_with_rule(T,num);//建立avl树,使用规则计算bf
 //			T=insert_avl_node_recu_book(T,num,taller);//教科书上的avl代码
-//			T=BST_insert_iter(T,num);//在树T中插入结点,建立BST树
+//			T=BST_insert_iter(T,num);//在树T中插入结点,建立BST树.在avl中不用的代码
 			if(ch=='#')
 				break;
 		}
@@ -159,18 +161,20 @@ void removeAVLTree_and_traverse(AVLTree *root,int whether_display_bf,int replace
 {
 	printf("Rmove node replace method(%d):",replace_method_inorder);
 	if(replace_method_inorder==IOS)
-		printf("IOS,inorder successor");
+		printf("IOS,inorder successor");//中序后继
 	else if(replace_method_inorder==IPD)
-		printf("IPD,inorder predecessor");
+		printf("IPD,inorder predecessor");//中序前驱
 	printf("\n");
 	size_t r_key;//key need to be remove
 	do
 	{
-		printf("Enter a number to remove(%s method.# to end):",removal_method==REMOVE_ITER?"iter":"recu");
+		printf("Enter a number to remove(%s method.# to end):",removal_method==REMOVE_RECU?"recu":(removal_method==REMOVE_ITER_HEIGHT?"iter_height":"iter_rule"));
 		if(	scanf("%zu",&r_key)==1 )
 		{
-			if(removal_method==REMOVE_ITER)
-				root=remove_avl_tree_node_yandaonan(root,r_key,replace_method_inorder);//研道难的删除思路,迭代
+			if(removal_method==REMOVE_ITER_HEIGHT)
+				root=remove_avl_tree_node_yandaonan(root,r_key,replace_method_inorder);//研道难的删除思路,迭代,基于树高
+			else if(removal_method==REMOVE_ITER_RULE)
+				root=remove_avl_tree_node_ydn_rule(root,r_key,replace_method_inorder);//研道难的删除思路,迭代,基于规则
 			else if(removal_method==REMOVE_RECU)
 				root=delete_node_geek(root,r_key,replace_method_inorder);//geek网站的代码,递归
 			all_traverse(root,whether_display_bf);
@@ -193,6 +197,10 @@ int main()
     string file_name = "config.ini";
 	string value=get_ini_value(section_name, key_name, file_name);
 	int whether_display_bf=atoi(value.data());
+	
+	key_name="debug";
+	//int whether_debug=atoi(value.data());
+	int whether_debug=atoi((get_ini_value("general","view_balance_factor","config.ini")).data());
 
 	AVLTree *root=NULL;
 	root=createAVLTree(root);

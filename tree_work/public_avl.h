@@ -14,8 +14,10 @@ typedef int Status;
 
 //geek's remove method
 #define REMOVE_RECU 0
-//yandaonan's remove method
-#define REMOVE_ITER 1
+//yandaonan's remove method,based on tree height
+#define REMOVE_ITER_HEIGHT 1
+////yandaonan's remove method,based on rule
+#define REMOVE_ITER_RULE 2
 
 //numeric define keyword
 #define EQ(a,b) ((a)==(b))

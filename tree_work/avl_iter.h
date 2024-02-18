@@ -3,32 +3,7 @@
  从下往上更新各结点平衡因子.
 依据规则指定balance_factor,不使用树高更新平衡因子.需要taller标志*/
 #include "public_avl.h"
-
-/*
-单次左旋转,RR情况适用
-返回旋转完成后的新结点new_root
-*/
-AVLTree *left_rotate_only(AVLTree *root)
-{
-	AVLTree *new_root=root->rchild;
-	AVLTree *temp_node=new_root->lchild;
-	root->rchild=temp_node;
-	new_root->lchild=root;
-	return new_root;
-}
-
-/*
-单次右旋转,LL情况适用
-返回旋转完成后的新结点new_root
-*/
-AVLTree *right_rotate_only(AVLTree *root)
-{
-	AVLTree *new_root=root->lchild;
-	AVLTree *temp_node=new_root->rchild;
-	root->lchild=temp_node;
-	new_root->rchild=root;
-	return new_root;
-}
+#include "rotate.h"
 
 /*调整平衡.post_insertion action 1.
 入参:mubst,最小不平衡子树的根.

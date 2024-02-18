@@ -8,11 +8,15 @@ https://dl.acm.org/doi/pdf/10.1145/355609.362340
 https://zhjwpku.com/assets/pdf/AED2-10-avl-paper.pdf
 https://www.mathnet.ru/php/archive.phtml?wshow=paper&jrnid=dan&paperid=26964&option_lang=eng
 删除后,需要一直溯源到根结点,完成平衡。
+remove node which has doule children,update its bf.
 */
 #include "public_avl.h"
 #include "height_cnt.h"
 #include "rotate.h"
+#include <cassert>
 
+#ifndef REMOVE_NODE_YANDAONAN_USING_HEIGHT
+#define REMOVE_NODE_YANDAONAN_USING_HEIGHT
 //the following define the type of AVL tree. to combine 4 case:left left,left right,right right,right left.
 #define TYPE_LEFT 1
 #define TYPE_RIGHT 2
@@ -92,10 +96,12 @@ return value:
 */
 AVLTree* process_double_children(AVLTree *root,AVLTree *node_p,std::stack<AVLTree *> &node_stack,int replace_method_inorder)
 {
+	AVLTree *parent_unified=NULL;//for calc the height
 	if(replace_method_inorder==IOS)//中序后继
 	{
 		AVLTree *parent_ios=node_p;//中序后继的父结点可能是node_p
 		AVLTree *ios=min_value_node(node_p->rchild,parent_ios);//node_p的中序后继.中序后继一定没有左子树.ios=inorder successor
+		parent_unified=parent_ios;//for calc the height
 		if(node_p==parent_ios)
 			parent_ios->rchild=ios->rchild;
 		else//node_p is not ios_parent
@@ -106,14 +112,18 @@ AVLTree* process_double_children(AVLTree *root,AVLTree *node_p,std::stack<AVLTre
 	else if(replace_method_inorder==IPD)//中序前驱
 	{
 		AVLTree *parent_ipd=node_p;
-		AVLTree *ipd=max_value_node(node_p->lchild,parent_ipd);		
+		AVLTree *ipd=max_value_node(node_p->lchild,parent_ipd);
+		parent_unified=parent_ipd;//for calc the height
 		if(node_p==parent_ipd)
 			parent_ipd->lchild=ipd->lchild;
 		else//node_p is not parent_ipd
-			parent_ipd->rchild=ipd->lchild;		
-		node_p->data=ipd->data;		
+			parent_ipd->rchild=ipd->lchild;//need to adjust the bf of parent_ipd		
+		node_p->data=ipd->data;//node_p 's height will be update during rotation
 		free(ipd);
 	}
+	int lheight=height_of_tree(parent_unified->lchild);
+	int rheight=height_of_tree(parent_unified->rchild);
+	parent_unified->balance_factor=lheight-rheight;
 	node_stack.push(node_p);
 	return root;
 }
@@ -136,9 +146,11 @@ AVLTree* process_one_child2_desert(AVLTree*root,AVLTree* node_p,AVLTree* parent)
 }
 
 /*不带父结点的移除法
-node_p has a child.
+前置条件:node_p has only one child.
 return value:
-1.the root node of searched tree
+1.the root node of searched tree,function return value.
+2.modified node_p,from function pointer.
+3.node_stack,from function reference.
 */
 AVLTree* process_one_child(AVLTree*root,AVLTree* node_p,std::stack<AVLTree *> &node_stack)
 {
@@ -151,13 +163,14 @@ AVLTree* process_one_child(AVLTree*root,AVLTree* node_p,std::stack<AVLTree *> &n
 	return root;
 }
 
-/*前置:node_p,没有子结点,即叶子结点
+/*前置要求:node_p,没有子结点,即叶子结点.使用ASSERT做判断.
 删除node_p,并更新node_p的父结点parent的孩子结点指向
 返回值:
 根结点.若node_p为根结点,则返回为空树.
 */
 AVLTree* process_no_child(AVLTree *root,AVLTree *node_p,AVLTree *parent)
 {
+	assert(node_p->lchild==NULL&&node_p->rchild==NULL);
 	if(node_p==root)//alias parent==NULL
 	{
 		root=NULL;
@@ -173,23 +186,23 @@ AVLTree* process_no_child(AVLTree *root,AVLTree *node_p,AVLTree *parent)
 	return root;
 }
 
-//对mubst的平衡因子,进行旋转
-AVLTree* pd_adjust_balance(AVLTree *mubst)//pd means post deletion
+//更新mubst的平衡因子,并根据bf进行旋转,使用树高
+AVLTree* pd_adjust_balance_using_height(AVLTree *mubst)//pd means post deletion
 {
-	int left_height=height_of_tree(mubst->lchild);
-	int right_height=height_of_tree(mubst->rchild);
+	int left_height=height_of_tree_iter(mubst->lchild);
+	int right_height=height_of_tree_iter(mubst->rchild);
 	int old_balance_factor=mubst->balance_factor;
 	mubst->balance_factor=left_height-right_height;//judge the balance factor by height of tree
 //	printf("%zu(%d->%d),\n",mubst->data,old_balance_factor,mubst->balance_factor);//输出结点值和平衡因子
 	
-	//left_height>=right_height,completedly match https://www.cs.usfca.edu/~galles/visualization/AVLtree.html
-	AVLTree *first_level_node=left_height>=right_height?mubst->lchild:mubst->rchild;//第1级结点是mubst的子树里,树高最大(含相等)的那个
+	//left_height>right_height,should match https://www.cs.usfca.edu/~galles/visualization/AVLtree.html
+	AVLTree *first_level_node=left_height>right_height?mubst->lchild:mubst->rchild;//第1级结点是mubst的子树里,树高最大(含相等)的那个
 	if(first_level_node==NULL)//in case it was NULL.Maybe has not first_level_node
 		return mubst;
 
 	left_height=height_of_tree_iter(first_level_node->lchild);
 	right_height=height_of_tree_iter(first_level_node->rchild);
-	AVLTree *second_level_node=left_height>=right_height?first_level_node->lchild:first_level_node->rchild;//第2级结点是first_level_node的子树里,树高最大的那个
+	AVLTree *second_level_node=left_height>right_height?first_level_node->lchild:first_level_node->rchild;//第2级结点是first_level_node的子树里,树高最大的那个
 	if(second_level_node==NULL)
 		return mubst;
 
@@ -257,7 +270,7 @@ AVLTree* post_deletion(AVLTree* T,size_t key,std::stack<AVLTree *> &node_stack)
 		node_stack.pop();
 		//adjust the balance factor of node parent
 		printf("%zu,",parent->data);//the passed by parent node
-		parent=pd_adjust_balance(parent);//***中序前驱时,也许问题在这里.
+		parent=pd_adjust_balance_using_height(parent);
 		//connect the grand-parent and parent. parent become the child of grand-parent
 		AVLTree *temp_node=pd_junction(parent,key,node_stack);
 		if(temp_node!=NULL)//root is parent
@@ -305,15 +318,16 @@ AVLTree* remove_avl_tree_node_yandaonan(AVLTree *T,size_t key,int replace_method
 		{//child should be re-evaluate the balance factor
 			printf("remove node which has only one child.\n");
 			T=process_one_child(T,p,node_stack);
-		}		
+		}
+		//calc the parent-trail balance factor
+		printf("the node path will by(include itself):\n");
+		T=post_deletion(T,key,node_stack);
+		printf("\n");
 	}
 	else//not found
 	{
 		printf("Not found key:%zu.\n",key);
-	}
-	//calc the parent-trail balance factor
-	printf("the node path will by(include itself):\n");
-	T=post_deletion(T,key,node_stack);
-	printf("\n");
+	}	
 	return T;
 }
+#endif

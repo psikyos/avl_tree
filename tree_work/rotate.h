@@ -42,4 +42,30 @@ AVLTree * left_rotate(AVLTree *root)//使用返回结点值的方法,处理父结点的问题.更新
 	root->balance_factor=left-right;
 	return new_root;
 }
+
+/*
+单次左旋转,RR情况适用
+返回旋转完成后的新结点new_root
+*/
+AVLTree *left_rotate_only(AVLTree *root)
+{
+	AVLTree *new_root=root->rchild;
+	AVLTree *temp_node=new_root->lchild;
+	root->rchild=temp_node;
+	new_root->lchild=root;
+	return new_root;
+}
+
+/*
+单次右旋转,LL情况适用
+返回旋转完成后的新结点new_root
+*/
+AVLTree *right_rotate_only(AVLTree *root)
+{
+	AVLTree *new_root=root->lchild;
+	AVLTree *temp_node=new_root->rchild;
+	root->lchild=temp_node;
+	new_root->rchild=root;
+	return new_root;
+}
 #endif
