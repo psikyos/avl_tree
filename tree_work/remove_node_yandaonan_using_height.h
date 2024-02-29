@@ -1,6 +1,6 @@
 /*
 avl tree remove node.
-研道难5.14
+研道难5.14二叉排序树
 https://www.geeksforgeeks.org/deletion-in-an-avl-tree/
 https://dl.acm.org/doi/10.1145/800197.806043
 https://en.wikipedia.org/wiki/AVL_tree#Comparison_to_other_structures
@@ -241,12 +241,28 @@ AVLTree* pd_adjust_balance_using_height(AVLTree *mubst)//pd means post deletion
 	return mubst;
 }
 
-AVLTree* pd_junction(AVLTree* mubst,size_t key,std::stack<AVLTree *> &node_stack)
+AVLTree* pd_junction_desert(AVLTree* mubst,size_t key,std::stack<AVLTree *> &node_stack)
 {
 	if(!node_stack.empty())
 	{
 		AVLTree *grand_parent=node_stack.top();
 		if(key<grand_parent->data)//go left
+				grand_parent->lchild=mubst;
+		else// go right
+				grand_parent->rchild=mubst;
+		return NULL;
+	}
+	else	//root is mubst
+		return mubst;
+}
+
+//need old_parent variable get prepared in advance.
+AVLTree* pd_junction_rule(AVLTree* mubst,AVLTree* old_parent,std::stack<AVLTree *> &node_stack)
+{
+	if(!node_stack.empty())
+	{
+		AVLTree *grand_parent=node_stack.top();
+		if(grand_parent->lchild==old_parent)//go left
 				grand_parent->lchild=mubst;
 		else// go right
 				grand_parent->rchild=mubst;
@@ -267,12 +283,14 @@ AVLTree* post_deletion(AVLTree* T,size_t key,std::stack<AVLTree *> &node_stack)
 	while(!node_stack.empty())
 	{
 		parent=node_stack.top();
+		AVLTree *old_parent=parent;//prepare for grand_parent con-junction
 		node_stack.pop();
 		//adjust the balance factor of node parent
 		printf("%zu,",parent->data);//the passed by parent node
 		parent=pd_adjust_balance_using_height(parent);
 		//connect the grand-parent and parent. parent become the child of grand-parent
-		AVLTree *temp_node=pd_junction(parent,key,node_stack);
+//		AVLTree *temp_node=pd_junction(parent,key,node_stack);
+		AVLTree *temp_node=pd_junction_rule(parent,old_parent,node_stack);
 		if(temp_node!=NULL)//root is parent
 		{
 			parent=temp_node;

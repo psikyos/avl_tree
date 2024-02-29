@@ -1,6 +1,8 @@
 /*public_avl.h*/
 #include <stdlib.h>
+#include <string>
 #include <queue>
+using namespace std;
 
 #ifndef PUBLIC_AVL_STRUCTURE
 #define PUBLIC_AVL_STRUCTURE
@@ -18,6 +20,9 @@ typedef int Status;
 #define REMOVE_ITER_HEIGHT 1
 ////yandaonan's remove method,based on rule
 #define REMOVE_ITER_RULE 2
+
+//sign of DEBUG
+#define WHETHER_DEBUG atoi((get_ini_value("general","debug","config.ini")).data())
 
 //numeric define keyword
 #define EQ(a,b) ((a)==(b))
@@ -123,5 +128,29 @@ Status LevelOrderTraverse_nonrecursive(AVLTree *T,int whether_display_bf)
 			q.push(p->rchild);
 	}
 	return OK;
+}
+
+//返回字符,如需数字,则使用atoi转换
+string get_ini_value(string section, string key, string filename) {
+    ifstream file(filename.c_str());
+    string line;
+    bool section_found = false;
+    while (getline(file, line)) 
+	{
+		// Skip any lines that start with #
+		if(line[0]=='#')
+			continue;
+        // Check if we have found the correct section
+        if (line.find("[" + section + "]") != string::npos) {
+            section_found = true;
+            continue;
+        }
+        // Check if we are in the correct section and have found the correct key
+        if (section_found && line.find(key) != string::npos) {
+            size_t pos = line.find("=");
+            return line.substr(pos + 1);
+        }
+    }
+    return "";
 }
 #endif
