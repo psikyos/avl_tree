@@ -6,6 +6,8 @@ the complete recursive method it provides.
 #include "public_avl.h"
 #include "rotate.h"
 
+#ifndef REMOVE_NODE_GEEK
+#define REMOVE_NODE_GEEK
 /*找到结点p的中序前驱,inorder predecessor
 假设结点p不为空.
 返回值:
@@ -104,6 +106,8 @@ AVLTree* delete_node_geek(AVLTree *root,size_t key,int replace_method_inorder)
 	//adjust balance factor
 	int old_balance_factor=root->balance_factor;	
 	root->balance_factor=get_balance(root);
+	if(WHETHER_DEBUG)
+		printf("pass:%zu(%d).",root->data,root->balance_factor);
 	if(root->balance_factor>1)//LL or LR
 	{
 		if(get_balance(root->lchild)>=0)//LL
@@ -134,3 +138,4 @@ AVLTree* delete_node_geek(AVLTree *root,size_t key,int replace_method_inorder)
 	}
 	return root;
 }
+#endif

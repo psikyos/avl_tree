@@ -60,12 +60,14 @@ AVLTree *search_node(AVLTree *T,size_t key,AVLTree *&parent,std::stack<AVLTree *
 1.node_p的中序前驱,函数返回值.
 2.node_p的中序前驱的父结点,从入参返回.
 */
-AVLTree* max_value_node(AVLTree *p_lchildtree,AVLTree *&parent_ipd)
+AVLTree* max_value_node(AVLTree *p_lchildtree,AVLTree *&parent_ipd,std::stack<AVLTree *> &node_stack)
 {
 	AVLTree* foregoer=p_lchildtree;
+	node_stack.push(parent_ipd);
 	while(foregoer->rchild!=NULL)
 	{//看前驱是否需要父结点
 		parent_ipd=foregoer;
+		node_stack.push(foregoer);//check the stack
 		foregoer=foregoer->rchild;
 	}
 	return foregoer;
@@ -112,7 +114,7 @@ AVLTree* process_double_children(AVLTree *root,AVLTree *node_p,std::stack<AVLTre
 	else if(replace_method_inorder==IPD)//中序前驱
 	{
 		AVLTree *parent_ipd=node_p;
-		AVLTree *ipd=max_value_node(node_p->lchild,parent_ipd);
+		AVLTree *ipd=max_value_node(node_p->lchild,parent_ipd,node_stack);
 		parent_unified=parent_ipd;//for calc the height
 		if(node_p==parent_ipd)
 			parent_ipd->lchild=ipd->lchild;
