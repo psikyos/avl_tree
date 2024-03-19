@@ -12,6 +12,10 @@ https://www.cs.emory.edu/~cheung/Courses/253/Syllabus/Trees/
 https://www.cs.emory.edu/~cheung/Courses/253/Syllabus/Trees/AVL-delete.html
 http://www.cs.emory.edu/~cheung/Courses/253/Syllabus/book/PDF/avltrees.pdf
 
+20240312
+https://cs.stackexchange.com/questions/16313/updating-an-avl-tree-based-on-balance-factors
+http://www.cs.toronto.edu/~toni/Courses/263-2015/lectures/lec04-balanced-augmentation.pdf
+
 *import*:Defintion of shorter, indicate the tree height got shorten and bf is 2 or -2 except root case.
 if shorter is trigger, balance_factor updated will NOT be postponed to rule judegement.
 shorter=0, tree height remains unchanged; 
@@ -20,6 +24,7 @@ shorter=2, the parent trail to process bf. It indicates the process is not the c
 shorter为2时,指示当前不是结点删除现场,而且堆栈中的某个结点,可能需要调整bf
 
 删除后,根据shorter以及规则调整bf,并一直溯源到根结点,完成平衡。
+add a stack, indicator the direction of left or right.
 */
 #include "public_avl.h"
 #include "height_cnt.h"
@@ -99,7 +104,7 @@ return value:
 2.modified node_p,from function pointer.
 3.node_stack,from function reference.
 */
-int shorter_one_child(AVLTree* node_p,std::stack<AVLTree *> &node_stack,int shorter)
+int shorter_one_child(AVLTree* node_p,std::stack<AVLTree *> &node_stack,std::stack< int > &dir_stack,int shorter)
 {
 	assert(!(node_p->lchild!=NULL&&node_p->rchild!=NULL) && !(node_p->lchild==NULL&&node_p->rchild==NULL) );//node_p has only one child
 	AVLTree *ps_child=(node_p->lchild!=NULL?node_p->lchild:node_p->rchild);
@@ -122,6 +127,10 @@ int shorter_one_child(AVLTree* node_p,std::stack<AVLTree *> &node_stack,int shor
 	}//	node_p->balance_factor+=bf_direction;
 	//printf("****judgegment here****%zu(%d)",node_p->data,node_p->balance_factor);
 	node_stack.push(node_p);//do not use//only got shorten need to get in stack
+	if(bf_direction<0)
+		dir_stack.push(TYPE_LEFT);//??replacement occurs at left
+	else
+		dir_stack.push(TYPE_RIGHT);//??
 	return shorter;
 }
 
@@ -133,7 +142,7 @@ shorter should be judge after node_p's bf get changed
 return value:
 1.shoter sign, from function return value
 */
-int shorter_double_children(AVLTree *node_p,std::stack<AVLTree *> &node_stack,int replace_method_inorder,int shorter)
+int shorter_double_children(AVLTree *node_p,std::stack<AVLTree *> &node_stack,std::stack< int > &dir_stack,int replace_method_inorder,int shorter)
 {
 	assert(node_p->lchild!=NULL&&node_p->rchild!=NULL);
 	//int special_process=0;//special add to stack.The stack is added in the ipd search process.So there is no need to add stack.
@@ -143,7 +152,7 @@ int shorter_double_children(AVLTree *node_p,std::stack<AVLTree *> &node_stack,in
 		case IPD://中序前驱,在左子树中找到最大值
 		{
 			parent_ipd=node_p;
-			AVLTree *ipd=max_value_node(node_p->lchild,parent_ipd,node_stack);//ipd do not have rchild. ipd is max child in node_p's left subtree.
+			AVLTree *ipd=max_value_node(node_p->lchild,parent_ipd,node_stack,dir_stack);//ipd do not have rchild. ipd is max child in node_p's left subtree.
 			if(node_p==parent_ipd)//node_p is parent_ipd itself
 			{
 				node_p->lchild=ipd->lchild;
@@ -168,15 +177,15 @@ int shorter_double_children(AVLTree *node_p,std::stack<AVLTree *> &node_stack,in
 				switch(parent_ipd->balance_factor)//should be 0 and -1.
 				{//**checked case 1.
 					case 1:
-						//printf("special process.");
-						node_p->balance_factor-=1;//it may be -2
+						//node_p->balance_factor-=1;//it may be -2.//it should nothing to do with this case.
 						parent_ipd->balance_factor+=1;//need to add to stack and rotate
 						//special_process=1;//there is possible that parent_ipd got unbalanced,so added it to stack.
 						shorter=1;
 						break;
 					case 0:
 						parent_ipd->balance_factor=1;
-						node_p->balance_factor-=0;//unchanged
+						shorter=0;//?added 20240318
+						//node_p->balance_factor-=0;//unchanged
 						break;
 					case -1://**need to re-check
 						parent_ipd->balance_factor=0;//tree height has shorten
@@ -269,19 +278,25 @@ int shorter_double_children(AVLTree *node_p,std::stack<AVLTree *> &node_stack,in
 
 /*update the node balance factor based on rule,not on tree height
 parameter:
-shorter comes from successful removal action. If node was removed, shorter=1. If shorter=-2, the node is in the parent trail.
-shorter could not be updated in the function. Because it will be used until the last parent-node.
+1.shorter comes from successful removal action. If node was removed, shorter=1. If shorter=2, the node is in the parent trail.
+  shorter could not be updated in the function. Because it will be used until the last parent-node.
 z is mubst.y is the height in z's subtree. x is the heighter in y's subtree.
+2.dir_action,the remove action occured at which direction of current node named "parent".TYPE_LEFT or TYPE_RIGHT.
+3.replace_method_inorder,IPD or IOS.
+4.indicator_of_children_case, whether the case is 2 children case.
 Return value:
 1.need_balance,from function reference.
 2.parent, from function return value.
+Revision history:
 11,Jan,2024.
 Modified,remove key and parent->data comparision.
 add bf=2 or bf=-2 judgement.
+
 21st,Feb,2024.
+Created.
 */
-AVLTree* pd_update_bf_rule(AVLTree* parent,size_t key,int &shorter,int &need_balance,int replace_method_inorder,
-int indicator_of_children_case)
+AVLTree* pd_update_bf_rule(AVLTree* parent,int dir_action,int &shorter,int &need_balance,
+int replace_method_inorder,int indicator_of_children_case)
 {
 	if(shorter>0)//tree height got shorten.
 	{
@@ -289,8 +304,15 @@ int indicator_of_children_case)
 		{
 			case 2://left is too heavy. this action should do at removing process.
 			case 1://original left child is greater than right.At the edge of adjustment,then may be need_balance
-			{//use tree height to replace
-				parent->balance_factor=get_balance(parent);
+			{
+				//parent->balance_factor=get_balance(parent);//use tree height to replace
+				if(parent->balance_factor==1)//new method
+				{
+					if(dir_action==TYPE_LEFT && shorter==2)
+						parent->balance_factor--;
+					else if(dir_action==TYPE_RIGHT && shorter==2)
+						parent->balance_factor++;
+				}
 				/*
 				if(parent->balance_factor==1)
 				{
@@ -321,17 +343,21 @@ int indicator_of_children_case)
 			}
 			case 0://original left equals right
 			{
-			//could it be modified to tree height? in the double children case? bf from 0 to 1,then balanced? impossible bf from 0 to -1.
+			//In the double children and IPD case, bf from 0 to 1,then balanced. impossible bf from 0 to -1(may be IOS with 2 children case).
 			//give special case when double children and ipd.
-				//??should it do update bf?.Do not cause rotate, should not update bf here.But it should alter trail bf here.so do it.
+				//should it do update bf?Do not cause rotate, should not update bf here.But it should alter trail bf here.so do it.
 				printf("Before:%zu(%d),shorter=%d.",parent->data,parent->balance_factor,shorter);//,
 					//indicator_of_children_case,replace_method_inorder);
-				parent->balance_factor=get_balance(parent);
-				int after_bf=parent->balance_factor;
-				/*if(indicator_of_children_case==1&&replace_method_inorder==IPD)//bf from 0 to 1.the shorter has over.
+				//parent->balance_factor=get_balance(parent);
+				if(dir_action==TYPE_LEFT && shorter==2)//removing action occurs at left child subtree.right get heavy.
+					parent->balance_factor--;
+				else if(dir_action==TYPE_RIGHT && shorter==2)
+					parent->balance_factor++;
+				if(indicator_of_children_case==1&&replace_method_inorder==IPD&&
+					parent->balance_factor==1)//2 children case. bf from 0 to 1.the shorter has been ABSORBED.
 				{
 					shorter=0;//re-verify the case to many level
-				}*///**prepare for IOS case
+				}//**prepare for IOS case
 				printf("After %zu(%d),shorter=%d is here.\n",parent->data,parent->balance_factor,shorter);
 				/*
 				if(key<parent->data && shorter==2)//removing action occurs at left child subtree.right get heavy.
@@ -344,7 +370,14 @@ int indicator_of_children_case)
 			case -1://at the edge adjust bf, then may be need_balance.
 			case -2://original left child is less than right child
 			{
-				parent->balance_factor=get_balance(parent);
+				//parent->balance_factor=get_balance(parent);//temporarily unavailable
+				if(parent->balance_factor==-1)
+				{
+				if(dir_action==TYPE_RIGHT && shorter==2)
+					parent->balance_factor++;
+				else if(dir_action==TYPE_LEFT && shorter==2)
+					parent->balance_factor--;//parent->balance_factor=-2;
+				}
 				/*
 				if(parent->balance_factor==-1)
 				{
@@ -378,7 +411,7 @@ int indicator_of_children_case)
 }
 
 /*
-Do rotate action and update bf.
+Do rotate action and update bf based on rule.
 need_balance to express category of rotation.
 Caution:
 LL&LR mixed type as to LL.
@@ -404,12 +437,12 @@ AVLTree* pd_adjust_balance_using_rule(AVLTree *mubst,int need_balance)//mubst's 
 			mubst=right_rotate_only(mubst);
 			printf("Engage rpd_LL case.\n");//rule post delete
 			break;
-		case 2://LR case,most complicate.Has 4 cases.
+		case 2://LR case,most complicated.Has 4 cases.
 		{
 			AVLTree *ld=mubst->lchild->rchild;			
-			switch(ld->balance_factor)
+			switch(ld->balance_factor)//total has 4 cases
 			{
-				case 0://has 2 cases
+				case 0://has 2 cases.There is no LL mixed case,because it has been blocked by pd_udapte_bf_rule
 					if(ld->lchild==NULL&&ld->rchild==NULL)//x等重无子
 					{
 						mubst->balance_factor=0;
@@ -450,54 +483,66 @@ AVLTree* pd_adjust_balance_using_rule(AVLTree *mubst,int need_balance)//mubst's 
 			mubst=left_rotate_only(mubst);
 			printf("Engage rpd_RR case.\n");
 			break;
-		case 4://RL case
+		case 4://RL case.only 4 case.when mubst->rchild->bf==1
 			assert(mubst->rchild!=NULL);
 			assert(mubst->rchild->lchild!=NULL);
-			AVLTree *rd=mubst->rchild->lchild;			
-			if(rd!=NULL)
-				rd->balance_factor=0;
-			if(mubst->balance_factor==-2
-				&&mubst->rchild->balance_factor==1
-				&&rd->balance_factor==-1)//case: z=-2&&y=1&&x=-1
-				mubst->balance_factor=1;
-			else
-				mubst->balance_factor=0;
+			AVLTree *rd=mubst->rchild->lchild;
+			/*printf("mubst:%zu(%d). mubst->rchild:%zu(%d). mubst->rchild->lchild:%zu(%d).\n",mubst->data,mubst->balance_factor,
+				mubst->rchild->data,mubst->rchild->balance_factor,
+				rd->data,rd->balance_factor);*/
+			switch(rd->balance_factor)
+			{
+				case 0://has 2 cases,but same result.x等重有子和x等重无子都是一样的结果.
+					mubst->balance_factor=0;//z
+					mubst->rchild->balance_factor=0;//y
+					rd->balance_factor=0;//x
+					break;
+				case 1:
+					mubst->balance_factor=0;//z
+					mubst->rchild->balance_factor=-1;//y
+					rd->balance_factor=0;//x
+					break;
+				case -1:
+					mubst->balance_factor=1;//z
+					mubst->rchild->balance_factor=0;//y
+					rd->balance_factor=0;//x
+					break;
+			}			
 			mubst->rchild=right_rotate_only(mubst->rchild);
 			mubst=left_rotate_only(mubst);
-			//process bf of mubst->rchild
-			if(mubst->balance_factor==-2
-				&&mubst->rchild->balance_factor==1
-				&&rd->balance_factor==1)//case: z=-2&&y=1&&x=1
-				 mubst->rchild->balance_factor=-1;
-			else
-				mubst->rchild->balance_factor=0;
 			printf("Engage rpd_RL case.\n");
 			break;
 	}//end of switch(need_balance)
 	return mubst;
 }
 
-/*bst删除完成后的动作
+/*Post BST remove node behavior
 2.遍历父路径,调整结点平衡因子.
 3.连接祖父结点和父结点.
-passed parameter:
+pass parameter:
 4.indicator_of_children_case,if we engage double children case
 参数：
 1.new parent,处理后的结合树的根结点.或者NULL(未处理完),as function return value.
-1.node_stack,入参为删除结点删除路径上的所有父结点,return as function reference.
+2.node_stack,入参为删除结点删除路径上的所有父结点,return as function reference.
+3.dir_stack,corresponding to node_stack, same size. According the left or right direction where 
+	a node removal occured.return as function reference.
 */
-AVLTree* post_deletion_rule(size_t key,std::stack<AVLTree *> &node_stack,int &shorter,int replace_method_inorder,
+AVLTree* post_deletion_rule(std::stack<AVLTree *> &node_stack,std::stack< int > &dir_stack,int &shorter,int replace_method_inorder,
 int indicator_of_children_case)
 {
+	assert(node_stack.size()==dir_stack.size());//the size of 2 stacks must be equal
 	AVLTree *parent=NULL;
 	int need_balance=0;//0,do not need balance;1,2,3,4,represent rotate type.
+	int dir_action=-1;
 	while(!node_stack.empty())
 	{
 		parent=node_stack.top();
 		AVLTree *old_parent=parent;//prepare for grand_parent con-junction
 		node_stack.pop();
-		printf("pass:%zu(%d),shorter=%d.",parent->data,parent->balance_factor,shorter);//the passed by parent node
-		parent=pd_update_bf_rule(parent,key,shorter,need_balance,
+		dir_action=dir_stack.top();
+		dir_stack.pop();
+		printf("pass:%zu(%d),%s,shorter=%d.",parent->data,parent->balance_factor,dir_action==TYPE_LEFT?"type_left":"type_right",shorter);//the passed by parent node
+		parent=pd_update_bf_rule(parent,dir_action,shorter,need_balance,
 			replace_method_inorder,indicator_of_children_case);//assign the bf of parent,based on rule
 		//adjust the balance factor of node parent
 //		printf("need_balance=%d.",need_balance);
@@ -514,7 +559,7 @@ int indicator_of_children_case)
 			return parent;
 		}
 		if(shorter==1)
-			shorter=2;
+			shorter=2;		
 	}
 	return NULL;
 //	return T;
@@ -522,7 +567,7 @@ int indicator_of_children_case)
 
 /*在给定的avl树中删除一个搜索到的值的结点,并调整平衡.返回处理完成的树的根
 1.实现bst删除
-2.遍历父路径,调整结点平衡因子.post_deletion_rule
+2.遍历父路径,调整结点平衡因子.如果该结点为mubst,旋转.post_deletion_rule
 3.连接祖父结点和父结点.post_deletion_rule
 */
 AVLTree* remove_avl_tree_node_ydn_rule(AVLTree *T,size_t key,int replace_method_inorder)
@@ -536,7 +581,8 @@ AVLTree* remove_avl_tree_node_ydn_rule(AVLTree *T,size_t key,int replace_method_
 	*/
 	AVLTree *parent=NULL;
 	std::stack<AVLTree *>node_stack;//record the node which key is passed by
-	AVLTree *p=search_node(T,key,parent,node_stack);
+	std::stack< int >dir_stack;//same size as node_stack.record the left or right that remove action actually happen.
+	AVLTree *p=search_node(T,key,parent,node_stack,dir_stack);
 	int shorter=0;//0,not shrink;1, has shrink in height.
 	int indicator_of_children_case=0;//double children case.0,no; 1,yes
 	if(WHETHER_DEBUG)
@@ -556,19 +602,19 @@ AVLTree* remove_avl_tree_node_ydn_rule(AVLTree *T,size_t key,int replace_method_
 		{//use inorder successor(ios) to replace. ios should be re-evaluate the balance factor
 			printf("remove node which has 2 children.\n");
 			indicator_of_children_case=1;//it's double children case.
-			shorter=shorter_double_children(p,node_stack,replace_method_inorder,shorter);//set shorter
+			shorter=shorter_double_children(p,node_stack,dir_stack,replace_method_inorder,shorter);//set shorter
 		}
 		else//p has only one child
 		{
 			printf("remove node which has only one child.\n");
-			shorter=shorter_one_child(p,node_stack,shorter);//whether shorter depends on bf(2 or -2).So there should not evaluate bf in it.
+			shorter=shorter_one_child(p,node_stack,dir_stack,shorter);//whether shorter depends on bf(2 or -2).So there should not evaluate bf in it.
 		}
 		//shorter should be different from after 3 cases.shorter adjust in post_deletion_rule
 
 		//calc the parent-trail balance factor
-		printf("**shorter:%d.key:%zu.node_size:%d.the node path will by(include itself):\n",shorter,key,node_stack.size());
+		printf("**shorter:%d.key:%zu.node_size:%d.dir_size:%d.the node path will by(include itself):\n",shorter,key,node_stack.size(),dir_stack.size());
 		//T=post_deletion_rule(T,key,node_stack,shorter);//the 2nd process of parent on the trail stack.
-		AVLTree *temp_node=post_deletion_rule(key,node_stack,shorter,replace_method_inorder,indicator_of_children_case);//the 2nd process of parent on the trail stack.
+		AVLTree *temp_node=post_deletion_rule(node_stack,dir_stack,shorter,replace_method_inorder,indicator_of_children_case);//the 2nd process of parent on the trail stack.
 		if(temp_node!=NULL)
 			T=temp_node;
 		shorter=0;//tree height got shorten process has finished.

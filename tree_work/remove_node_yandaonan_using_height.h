@@ -28,7 +28,7 @@ remove node which has doule children,update its bf.
 入参:
 注意parent是引用.
 */
-AVLTree *search_node(AVLTree *T,size_t key,AVLTree *&parent,std::stack<AVLTree *> &node_stack)
+AVLTree *search_node(AVLTree *T,size_t key,AVLTree *&parent,std::stack<AVLTree *> &node_stack,std::stack< int > &dir_stack)
 {
 	if(T!=NULL)
 	{
@@ -36,13 +36,15 @@ AVLTree *search_node(AVLTree *T,size_t key,AVLTree *&parent,std::stack<AVLTree *
 		{
 			parent=T;
 			node_stack.push(parent);
-			return search_node(T->lchild,key,parent,node_stack);
+			dir_stack.push(TYPE_LEFT);
+			return search_node(T->lchild,key,parent,node_stack,dir_stack);
 		}
 		else if(key>T->data)//go right
 		{
 			parent=T;
 			node_stack.push(parent);
-			return search_node(T->rchild,key,parent,node_stack);
+			dir_stack.push(TYPE_RIGHT);
+			return search_node(T->rchild,key,parent,node_stack,dir_stack);
 		}
 		else//equal,return this node
 		{
@@ -60,14 +62,16 @@ AVLTree *search_node(AVLTree *T,size_t key,AVLTree *&parent,std::stack<AVLTree *
 1.node_p的中序前驱,函数返回值.
 2.node_p的中序前驱的父结点,从入参返回.
 */
-AVLTree* max_value_node(AVLTree *p_lchildtree,AVLTree *&parent_ipd,std::stack<AVLTree *> &node_stack)
+AVLTree* max_value_node(AVLTree *p_lchildtree,AVLTree *&parent_ipd,std::stack<AVLTree *> &node_stack,std::stack< int > &dir_stack)
 {
 	AVLTree* foregoer=p_lchildtree;
 	node_stack.push(parent_ipd);
+	dir_stack.push(TYPE_LEFT);
 	while(foregoer->rchild!=NULL)
 	{//看前驱是否需要父结点
 		parent_ipd=foregoer;
 		node_stack.push(foregoer);//check the stack
+		dir_stack.push(TYPE_RIGHT);
 		foregoer=foregoer->rchild;
 	}
 	return foregoer;
@@ -96,7 +100,7 @@ using inorder successor(中序后继,ios for short)来替代node_p
 return value:
 1.the root of searched tree, from function return value
 */
-AVLTree* process_double_children(AVLTree *root,AVLTree *node_p,std::stack<AVLTree *> &node_stack,int replace_method_inorder)
+AVLTree* process_double_children(AVLTree *root,AVLTree *node_p,std::stack<AVLTree *> &node_stack,std::stack< int > &dir_stack,int replace_method_inorder)
 {
 	AVLTree *parent_unified=NULL;//for calc the height
 	if(replace_method_inorder==IOS)//中序后继
@@ -114,7 +118,7 @@ AVLTree* process_double_children(AVLTree *root,AVLTree *node_p,std::stack<AVLTre
 	else if(replace_method_inorder==IPD)//中序前驱
 	{
 		AVLTree *parent_ipd=node_p;
-		AVLTree *ipd=max_value_node(node_p->lchild,parent_ipd,node_stack);
+		AVLTree *ipd=max_value_node(node_p->lchild,parent_ipd,node_stack,dir_stack);
 		parent_unified=parent_ipd;//for calc the height
 		if(node_p==parent_ipd)
 			parent_ipd->lchild=ipd->lchild;
@@ -318,7 +322,8 @@ AVLTree* remove_avl_tree_node_yandaonan(AVLTree *T,size_t key,int replace_method
 	*/
 	AVLTree *parent=NULL;
 	std::stack<AVLTree *>node_stack;//record the node which key is passed by
-	AVLTree *p=search_node(T,key,parent,node_stack);
+	std::stack< int >dir_stack;//same size as node_stack.record the left or right that remove action actually happen.Used in rule function.
+	AVLTree *p=search_node(T,key,parent,node_stack,dir_stack);
 	printf("Want to search:%zu.\n",key);
 	if(p!=NULL)
 	{	
@@ -332,7 +337,7 @@ AVLTree* remove_avl_tree_node_yandaonan(AVLTree *T,size_t key,int replace_method
 		else if(p->lchild!=NULL&&p->rchild!=NULL)//p has 2 children
 		{//use inorder successor(ios) to replace. ios should be re-evaluate the balance factor
 			printf("remove node which has 2 children.\n");
-			T=process_double_children(T,p,node_stack,replace_method_inorder);
+			T=process_double_children(T,p,node_stack,dir_stack,replace_method_inorder);
 		}
 		else//p has only one child
 		{//child should be re-evaluate the balance factor
