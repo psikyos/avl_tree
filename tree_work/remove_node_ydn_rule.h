@@ -287,12 +287,19 @@ z is mubst.y is the height in z's subtree. x is the heighter in y's subtree.
 Return value:
 1.need_balance,from function reference.
 2.parent, from function return value.
+3.shorter, from function reference.
+
 Revision history:
-11,Jan,2024.
+19th,Mar,2024.
+added dir_action.
+added replace_method_inorder.
+added indicator_of_children_case.
+
+21st,Feb,2024.
 Modified,remove key and parent->data comparision.
 add bf=2 or bf=-2 judgement.
 
-21st,Feb,2024.
+11,Jan,2024.
 Created.
 */
 AVLTree* pd_update_bf_rule(AVLTree* parent,int dir_action,int &shorter,int &need_balance,
@@ -308,19 +315,11 @@ int replace_method_inorder,int indicator_of_children_case)
 				//parent->balance_factor=get_balance(parent);//use tree height to replace
 				if(parent->balance_factor==1)//new method
 				{
-					if(dir_action==TYPE_LEFT && shorter==2)
+					if(dir_action==TYPE_LEFT && shorter==2)//After removal,left is smaller, right get heavier.
 						parent->balance_factor--;
 					else if(dir_action==TYPE_RIGHT && shorter==2)
 						parent->balance_factor++;
-				}
-				/*
-				if(parent->balance_factor==1)
-				{
-					if(key<parent->data && shorter==2)//After removal, left is smaller.
-						parent->balance_factor--;
-					else if(key>parent->data && shorter==2)
-						parent->balance_factor++;
-				}*/
+				}				
 				//the following is case 2
 				if(parent->balance_factor>1 && parent->lchild!=NULL)//LL or LR
 				{
@@ -344,9 +343,9 @@ int replace_method_inorder,int indicator_of_children_case)
 			case 0://original left equals right
 			{
 			//In the double children and IPD case, bf from 0 to 1,then balanced. impossible bf from 0 to -1(may be IOS with 2 children case).
-			//give special case when double children and ipd.
+			//give special case when double children and IPD, and when double children and IOS.
 				//should it do update bf?Do not cause rotate, should not update bf here.But it should alter trail bf here.so do it.
-				printf("Before:%zu(%d),shorter=%d.",parent->data,parent->balance_factor,shorter);//,
+				//printf("Before:%zu(%d),shorter=%d.",parent->data,parent->balance_factor,shorter);//,
 					//indicator_of_children_case,replace_method_inorder);
 				//parent->balance_factor=get_balance(parent);
 				if(dir_action==TYPE_LEFT && shorter==2)//removing action occurs at left child subtree.right get heavy.
@@ -358,7 +357,7 @@ int replace_method_inorder,int indicator_of_children_case)
 				{
 					shorter=0;//re-verify the case to many level
 				}//**prepare for IOS case
-				printf("After %zu(%d),shorter=%d is here.\n",parent->data,parent->balance_factor,shorter);
+				//printf("After %zu(%d),shorter=%d is here.\n",parent->data,parent->balance_factor,shorter);
 				/*
 				if(key<parent->data && shorter==2)//removing action occurs at left child subtree.right get heavy.
 					parent->balance_factor--;
@@ -377,19 +376,10 @@ int replace_method_inorder,int indicator_of_children_case)
 					parent->balance_factor++;
 				else if(dir_action==TYPE_LEFT && shorter==2)
 					parent->balance_factor--;//parent->balance_factor=-2;
-				}
-				/*
-				if(parent->balance_factor==-1)
-				{
-				if(key>parent->data && shorter==2)
-					parent->balance_factor++;
-				else if(key<parent->data && shorter==2)
-					parent->balance_factor--;//parent->balance_factor=-2;
-				}*/
+				}				
 				//the following is case -2			
 				if(parent->balance_factor<-1 &&  parent->rchild!=NULL)//RR or RL
 				{
-					//printf("parent->rchild->balance_factor:%zu(%d).",parent->rchild->data,parent->rchild->balance_factor);
 					switch(parent->rchild->balance_factor)
 					{
 						case -1://RR case
@@ -429,7 +419,7 @@ AVLTree* pd_adjust_balance_using_rule(AVLTree *mubst,int need_balance)//mubst's 
 				mubst->balance_factor=0;//z
 				mubst->lchild->balance_factor=0;//y				
 			}
-			else//混合类型,按LL处理
+			else//mixed type, as LL case.
 			{
 				mubst->balance_factor=1;//z
 				mubst->lchild->balance_factor=-1;//y
@@ -437,7 +427,7 @@ AVLTree* pd_adjust_balance_using_rule(AVLTree *mubst,int need_balance)//mubst's 
 			mubst=right_rotate_only(mubst);
 			printf("Engage rpd_LL case.\n");//rule post delete
 			break;
-		case 2://LR case,most complicated.Has 4 cases.
+		case 2://LR case,most complicated.Has 4 cases.Filtered by pd_udpate_bf_rule
 		{
 			AVLTree *ld=mubst->lchild->rchild;			
 			switch(ld->balance_factor)//total has 4 cases
@@ -475,7 +465,7 @@ AVLTree* pd_adjust_balance_using_rule(AVLTree *mubst,int need_balance)//mubst's 
 				mubst->balance_factor=0;//z
 				mubst->rchild->balance_factor=0;//y				
 			}
-			else//混合类型,按RR处理
+			else//mixed type, as RR case.
 			{
 				mubst->balance_factor=-1;//z
 				mubst->rchild->balance_factor=1;//y
