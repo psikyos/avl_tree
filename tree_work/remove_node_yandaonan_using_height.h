@@ -60,7 +60,9 @@ AVLTree *search_node(AVLTree *T,size_t key,AVLTree *&parent,std::stack<AVLTree *
 假设结点p不为空.此函数只涉及p的左子树.
 返回值:
 1.node_p的中序前驱,函数返回值.
-2.node_p的中序前驱的父结点,从入参返回.
+2.node_p的中序前驱的父结点parent_ipd,从入参返回.
+3.node_stack,from function reference.
+4.dir_stack,from function reference.
 */
 AVLTree* max_value_node(AVLTree *p_lchildtree,AVLTree *&parent_ipd,std::stack<AVLTree *> &node_stack,std::stack< int > &dir_stack)
 {
@@ -84,12 +86,16 @@ AVLTree* max_value_node(AVLTree *p_lchildtree,AVLTree *&parent_ipd,std::stack<AV
 1.node_p的中序后继,函数返回值.
 2.node_p的中序后继的父结点,从入参返回.
 */
-AVLTree* min_value_node(AVLTree *p_rchildtree,AVLTree *&parent_ios)
+AVLTree* min_value_node(AVLTree *p_rchildtree,AVLTree *&parent_ios,std::stack<AVLTree *> &node_stack,std::stack< int > &dir_stack)
 {
 	AVLTree* follow_up=p_rchildtree;
+	node_stack.push(parent_ios);
+	dir_stack.push(TYPE_RIGHT);
 	while(follow_up->lchild!=NULL)//here must judge follow_up's lchild in case follow_up get NULL
 	{	
 		parent_ios=follow_up;
+		node_stack.push(follow_up);
+		dir_stack.push(TYPE_LEFT);
 		follow_up=follow_up->lchild;
 	}
 	return follow_up;
@@ -106,7 +112,7 @@ AVLTree* process_double_children(AVLTree *root,AVLTree *node_p,std::stack<AVLTre
 	if(replace_method_inorder==IOS)//中序后继
 	{
 		AVLTree *parent_ios=node_p;//中序后继的父结点可能是node_p
-		AVLTree *ios=min_value_node(node_p->rchild,parent_ios);//node_p的中序后继.中序后继一定没有左子树.ios=inorder successor
+		AVLTree *ios=min_value_node(node_p->rchild,parent_ios,node_stack,dir_stack);//node_p的中序后继.中序后继一定没有左子树.ios=inorder successor
 		parent_unified=parent_ios;//for calc the height
 		if(node_p==parent_ios)
 			parent_ios->rchild=ios->rchild;

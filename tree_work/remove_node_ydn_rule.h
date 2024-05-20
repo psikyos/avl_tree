@@ -24,7 +24,7 @@ shorter=2, the parent trail to process bf. It indicates the process is not the c
 shorter为2时,指示当前不是结点删除现场,而且堆栈中的某个结点,可能需要调整bf
 
 删除后,根据shorter以及规则调整bf,并一直溯源到根结点,完成平衡。
-add a stack, indicator the direction of left or right.
+add dir_stack, indicator the direction of left or right.
 */
 #include "public_avl.h"
 #include "height_cnt.h"
@@ -103,6 +103,7 @@ return value:
 1.shorter,whether the tree height got shorten, from function return value.
 2.modified node_p,from function pointer.
 3.node_stack,from function reference.
+4.dir_stack,from function reference.
 */
 int shorter_one_child(AVLTree* node_p,std::stack<AVLTree *> &node_stack,std::stack< int > &dir_stack,int shorter)
 {
@@ -118,19 +119,22 @@ int shorter_one_child(AVLTree* node_p,std::stack<AVLTree *> &node_stack,std::sta
 	{//case 0://should not exist this situation.because node_p has only one child,so bf != 0
 		case 1://left child exists.so bf_direction should <0, should not >0
 			node_p->balance_factor+=bf_direction;//if greater than 0,that is 2 which is no need to update bf here.			
-			//shorter=0;//the parent trail maybe need to adjust,so do not change shorter sign.
+			shorter=1;//the parent trail maybe need to adjust,so do not change shorter sign.
 			break;
 		case -1://right child exists. so bf_direction should >0, should not <0
 			node_p->balance_factor+=bf_direction;
-			//shorter=0;//the parent trail maybe need to adjust,so do not change shorter sign.
+			shorter=1;//the parent trail maybe need to adjust,so do not change shorter sign.
 			break;
 	}//	node_p->balance_factor+=bf_direction;
 	//printf("****judgegment here****%zu(%d)",node_p->data,node_p->balance_factor);
-	node_stack.push(node_p);//do not use//only got shorten need to get in stack
+	//though node_p pushed to stack,but shorter is 1, so DO NOT update the bf in the trail.
+	//but if we do not push the node_p, it will destory the define of shorter=1.
+	//So we need to push the node in stack
+	node_stack.push(node_p);
 	if(bf_direction<0)
-		dir_stack.push(TYPE_LEFT);//??replacement occurs at left
+		dir_stack.push(TYPE_LEFT);//replacement occurs at left
 	else
-		dir_stack.push(TYPE_RIGHT);//??
+		dir_stack.push(TYPE_RIGHT);
 	return shorter;
 }
 
@@ -144,8 +148,7 @@ return value:
 */
 int shorter_double_children(AVLTree *node_p,std::stack<AVLTree *> &node_stack,std::stack< int > &dir_stack,int replace_method_inorder,int shorter)
 {
-	assert(node_p->lchild!=NULL&&node_p->rchild!=NULL);
-	//int special_process=0;//special add to stack.The stack is added in the ipd search process.So there is no need to add stack.
+	assert(node_p->lchild!=NULL&&node_p->rchild!=NULL);	
 	AVLTree *parent_ipd=NULL;//as a function scope global variable
 	switch(replace_method_inorder)
 	{
@@ -178,8 +181,7 @@ int shorter_double_children(AVLTree *node_p,std::stack<AVLTree *> &node_stack,st
 				{//**checked case 1.
 					case 1:
 						//node_p->balance_factor-=1;//it may be -2.//it should nothing to do with this case.
-						parent_ipd->balance_factor+=1;//need to add to stack and rotate
-						//special_process=1;//there is possible that parent_ipd got unbalanced,so added it to stack.
+						parent_ipd->balance_factor+=1;//need to add to stack and rotate						
 						shorter=1;
 						break;
 					case 0:
@@ -190,9 +192,7 @@ int shorter_double_children(AVLTree *node_p,std::stack<AVLTree *> &node_stack,st
 					case -1://**need to re-check
 						parent_ipd->balance_factor=0;//tree height has shorten
 						shorter=1;
-						//should have nothing to do with node_p.But it cause many confuse now.
-						//node_p->balance_factor-=1;//may cause rotate when node_p->balance_factor=-2
-						
+						//should have nothing to do with node_p. node_p->bf should update in the trail grand-parent.
 						/*switch(node_p->balance_factor)
 						{
 							case -1:
@@ -217,38 +217,36 @@ int shorter_double_children(AVLTree *node_p,std::stack<AVLTree *> &node_stack,st
 		}//end of case IPD
 		case IOS://中序后继.在右子树中找到最小值
 		{
-			AVLTree *parent_ios=node_p;//中序后继的父结点可能是node_p
-			AVLTree *ios=min_value_node(node_p->rchild,parent_ios);//node_p的中序后继.中序后继节点一定没有左子树.
+			AVLTree *parent_ios=node_p;//node_p may be the parent of ios
+			AVLTree *ios=min_value_node(node_p->rchild,parent_ios,node_stack,dir_stack);//node_p的中序后继.中序后继节点一定没有左子树.
 			if(node_p==parent_ios)
 			{
-				parent_ios->rchild=ios->rchild;				
-				switch(node_p->balance_factor)//node_p->balance_factor+=1;//left is get heavy
+				node_p->rchild=ios->rchild;				
+				switch(node_p->balance_factor)//left is get heavy
 				{
+					case 1:						
+						node_p->balance_factor+=1;//bf should be 2,but update here
+						shorter=1;
+						break;
 					case 0:
 						node_p->balance_factor+=1;
-						shorter=0;
+						shorter=0;//bf should be 0.ABSORBED here.
 						break;
 					case -1:
-						shorter=1;//bf should be 0.but do not update bf
-						break;
-					case 1:
+						node_p->balance_factor+=1;
 						shorter=1;
-						node_p->balance_factor+=1;//bf should be 2,but update here
-						break;
+						break;					
 				}
 			}
 			else//node_p is not ios's parent
-			{//ios' parent bf should not be -1.ios must be ios_parent's left child
+			{//ios must be ios_parent's left child
 				switch(parent_ios->balance_factor)
 				{
-					case 0:
-						parent_ios->balance_factor=-1;
-						node_p->balance_factor+=0;
-						break;
 					case 1:
-						parent_ios->balance_factor=0;
-						//node_p->balance_factor+=1;
-						switch(node_p->balance_factor)
+						parent_ios->balance_factor-=1;
+						shorter=1;
+						//node_p->balance_factor updated in trail grand-parent 
+						/*switch(node_p->balance_factor)
 						{
 							case 1:
 								shorter=1;//do not update bf
@@ -258,8 +256,16 @@ int shorter_double_children(AVLTree *node_p,std::stack<AVLTree *> &node_stack,st
 								node_p->balance_factor+=1;
 								shorter=0;
 								break;
-						}
+						}*/
 						break;
+					case 0:
+						parent_ios->balance_factor=-1;
+						shorter=0;//shorten ABSORBED here
+						break;					
+					case -1:
+							parent_ios->balance_factor-=1;
+							shorter=1;
+							break;
 				}
 				parent_ios->lchild=ios->rchild;
 			}
@@ -268,11 +274,7 @@ int shorter_double_children(AVLTree *node_p,std::stack<AVLTree *> &node_stack,st
 			break;
 		}//end of case:IOS
 	}// end of switch(replace_method_inorder)
-//may not use this line
-//	node_stack.push(node_p);
-//the stack is added in the ipd search process.So there is no need to add stack.
-//	if(special_process==1)//stack is Last In First Out, LIFO
-//		node_stack.push(parent_ipd);//interesting case. Process first
+//	node_stack.push(node_p);//the stack is added in the ipd or ios search process.So there is no need to add stack.
 	return shorter;
 }
 
@@ -356,14 +358,13 @@ int replace_method_inorder,int indicator_of_children_case)
 					parent->balance_factor==1)//2 children case. bf from 0 to 1.the shorter has been ABSORBED.
 				{
 					shorter=0;//re-verify the case to many level
-				}//**prepare for IOS case
-				//printf("After %zu(%d),shorter=%d is here.\n",parent->data,parent->balance_factor,shorter);
-				/*
-				if(key<parent->data && shorter==2)//removing action occurs at left child subtree.right get heavy.
-					parent->balance_factor--;
-				else if(key>parent->data && shorter==2)
-					parent->balance_factor++;
-				*/
+				}
+				if(indicator_of_children_case==1&&replace_method_inorder==IOS&&
+					parent->balance_factor==-1)//**prepare for IOS 2 children case.
+				{
+					shorter=0;//bf from 0 to -1,shorten has been ABSORBED.//20240411
+				}
+				//printf("After %zu(%d),shorter=%d is here.\n",parent->data,parent->balance_factor,shorter);				
 				break;
 			}
 			case -1://at the edge adjust bf, then may be need_balance.
