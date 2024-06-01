@@ -102,7 +102,7 @@ AVLTree* min_value_node(AVLTree *p_rchildtree,AVLTree *&parent_ios,std::stack<AV
 }
 
 /*assuming node_p has 2 children
-using inorder successor(中序后继,ios for short)来替代node_p
+ using inorder successor(中序后继,ios for short)来替代node_p
 return value:
 1.the root of searched tree, from function return value
 */
@@ -136,7 +136,7 @@ AVLTree* process_double_children(AVLTree *root,AVLTree *node_p,std::stack<AVLTre
 	int lheight=height_of_tree(parent_unified->lchild);
 	int rheight=height_of_tree(parent_unified->rchild);
 	parent_unified->balance_factor=lheight-rheight;
-	node_stack.push(node_p);
+	//node_stack.push(node_p);//the node_p is added in the ipd or ios search process.So there is no need to add stack.
 	return root;
 }
 
@@ -198,57 +198,76 @@ AVLTree* process_no_child(AVLTree *root,AVLTree *node_p,AVLTree *parent)
 	return root;
 }
 
-//更新mubst的平衡因子,并根据bf进行旋转,使用树高
+//update mubst's bf using tree height,rotate if necessary
 AVLTree* pd_adjust_balance_using_height(AVLTree *mubst)//pd means post deletion
 {
+	int need_balance=0;
 	int left_height=height_of_tree_iter(mubst->lchild);
 	int right_height=height_of_tree_iter(mubst->rchild);
-	int old_balance_factor=mubst->balance_factor;
+	//int old_balance_factor=mubst->balance_factor;
 	mubst->balance_factor=left_height-right_height;//judge the balance factor by height of tree
-//	printf("%zu(%d->%d),\n",mubst->data,old_balance_factor,mubst->balance_factor);//输出结点值和平衡因子
+//	printf("%zu(%d->%d),\n",mubst->data,old_balance_factor,mubst->balance_factor);
 	
-	//left_height>right_height,should match https://www.cs.usfca.edu/~galles/visualization/AVLtree.html
-	AVLTree *first_level_node=left_height>right_height?mubst->lchild:mubst->rchild;//第1级结点是mubst的子树里,树高最大(含相等)的那个
-	if(first_level_node==NULL)//in case it was NULL.Maybe has not first_level_node
-		return mubst;
-
-	left_height=height_of_tree_iter(first_level_node->lchild);
-	right_height=height_of_tree_iter(first_level_node->rchild);
-	AVLTree *second_level_node=left_height>right_height?first_level_node->lchild:first_level_node->rchild;//第2级结点是first_level_node的子树里,树高最大的那个
-	if(second_level_node==NULL)
-		return mubst;
-
-	//decide left or right. futher to decide the type.
-	int type_1st=(first_level_node==mubst->lchild)?TYPE_LEFT:TYPE_RIGHT;//first level type
-	int type_2nd=(second_level_node==first_level_node->lchild)?TYPE_LEFT:TYPE_RIGHT;//second level type
-	//if bf<-1 or bf>1,then has the following step. 
-	if(mubst->balance_factor>1)//LL or LR
+	switch(mubst->balance_factor)
 	{
-		if(TYPE_LEFT==type_1st&&TYPE_LEFT==type_2nd)//LL case
+		case 2://LL or LR
+			if( mubst->lchild!=NULL)//left child exists
+			{
+				switch (mubst->lchild->balance_factor)
+				{
+					case 1:
+						need_balance=1;//LL case
+						break;
+					case 0:
+						need_balance=1;//LL or LR case. Suggest to do as LL case.
+						break;
+					case -1:
+						need_balance=2;//LR case
+						break;
+				}
+			}
+			break;
+		case -2://RR or RL case
 		{
-			printf("Engaging pd_LL type.\n");
-			mubst=right_rotate(mubst);//调整balance factor的函数
+			if(mubst->rchild!=NULL)
+			{
+				switch(mubst->rchild->balance_factor)
+				{
+					case 1:
+						need_balance=4;//RL
+						break;
+					case 0:
+						need_balance=3;//RR or RL case, Suggest to do RR case.
+						break;
+					case -1:
+						need_balance=3;//RR
+						break;
+				}
+			}
+			break;
 		}
-		else if(TYPE_LEFT==type_1st&&TYPE_RIGHT==type_2nd)//LR case
-		{
+	}//end of switch(mubst->balance_factor) 	
+
+	switch(need_balance)
+	{
+		case 1://LL case
+			printf("Engaging pd_LL type.\n");
+			mubst=right_rotate(mubst);//rotate and adjust bf
+			break;
+		case 2://LR case
 			printf("Engaging pd_LR type.\n");
 			mubst->lchild=left_rotate(mubst->lchild);
 			mubst=right_rotate(mubst);
-		}
-	}
-	else if(mubst->balance_factor<-1)//RR or RL
-	{
-		if(TYPE_RIGHT==type_1st&&TYPE_RIGHT==type_2nd)//RR case
-		{
+			break;
+		case 3://RR case
 			printf("Engaging pd_RR type.\n");
 			mubst=left_rotate(mubst);
-		}
-		else if(TYPE_RIGHT==type_1st&&TYPE_LEFT==type_2nd)//RL case
-		{
+			break;
+		case 4://RL case
 			printf("Engaging pd_RL type.\n");
 			mubst->rchild=right_rotate(mubst->rchild);
 			mubst=left_rotate(mubst);
-		}
+			break;
 	}
 	return mubst;
 }

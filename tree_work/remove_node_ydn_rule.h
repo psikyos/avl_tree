@@ -2,6 +2,7 @@
 avl tree remove node.iterative,based on rule.
 基于研道难5.14二叉排序树,but use rule not tree height.
 https://www.geeksforgeeks.org/deletion-in-an-avl-tree/
+https://www.cs.usfca.edu/~galles/visualization/AVLtree.html
 https://dl.acm.org/doi/10.1145/800197.806043
 https://en.wikipedia.org/wiki/AVL_tree#Comparison_to_other_structures
 https://dl.acm.org/doi/pdf/10.1145/355609.362340
@@ -580,12 +581,12 @@ If it is the MUBST, classfied and rotate to balance. The classified are 4 types,
 		if(temp_node!=NULL)//when root is NULL, the case has been processed in previous function.
 			T=temp_node;
 		shorter=0;//tree height got shorten process has finished.
-		indicator_of_children_case=0;
+		//indicator_of_children_case=0;//should not further use
 	}
 	else//not found
 	{
 		shorter=0;
-		indicator_of_children_case=0;
+		//indicator_of_children_case=0;//should not further use
 		printf("Not found key:%zu.\n",key);
 	}
 	return T;
