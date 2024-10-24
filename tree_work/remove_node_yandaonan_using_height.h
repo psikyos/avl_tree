@@ -287,13 +287,13 @@ AVLTree* pd_junction_desert(AVLTree* mubst,size_t key,std::stack<AVLTree *> &nod
 		return mubst;
 }
 
-//need old_parent variable get prepared in advance.
-AVLTree* pd_junction_rule(AVLTree* mubst,AVLTree* old_parent,std::stack<AVLTree *> &node_stack)
+//need old_p variable get prepared in advance.
+AVLTree* pd_junction_rule(AVLTree* mubst,AVLTree* old_p,std::stack<AVLTree *> &node_stack)
 {
 	if(!node_stack.empty())
 	{
 		AVLTree *grand_parent=node_stack.top();
-		if(grand_parent->lchild==old_parent)//go left
+		if(grand_parent->lchild==old_p)//go left
 				grand_parent->lchild=mubst;
 		else// go right
 				grand_parent->rchild=mubst;

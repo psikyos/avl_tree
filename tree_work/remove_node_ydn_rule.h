@@ -12,6 +12,10 @@ https://www.cs.emory.edu/~cheung/Courses/253/Syllabus/Trees/
 https://www.cs.emory.edu/~cheung/Courses/253/Syllabus/Trees/AVL-delete.html
 http://www.cs.emory.edu/~cheung/Courses/253/Syllabus/book/PDF/avltrees.pdf
 
+20240927
+future work thinking:
+based on this research, the bf has nothing to do with node height.So, could I parallel the pd_update_bf_rule?
+
 20240312
 https://cs.stackexchange.com/questions/16313/updating-an-avl-tree-based-on-balance-factors
 http://www.cs.toronto.edu/~toni/Courses/263-2015/lectures/lec04-balanced-augmentation.pdf
@@ -33,7 +37,6 @@ dir_stack instead of avoiding key and node value compare because it's not correc
 #include "height_cnt.h"
 #include <cassert>
 #include "remove_node_yandaonan_using_height.h"
-#include "remove_node_geek.h"
 
 /*The deletion scene of removing a leaf, adjust parent's bf.
 Prerequisites:node_p is a leaf.Judeged by ASSERT.
@@ -59,19 +62,15 @@ AVLTree* shorter_leaf(AVLTree *root,AVLTree *node_p,AVLTree *parent,int &shorter
 			parent->lchild=NULL;
 			switch(parent->balance_factor)
 			{
-				case -1:
-					parent->balance_factor-=1;//parent->balance_factor=2
-					shorter=1;
-					break;
-				case 0:
-					parent->balance_factor-=1;//Deletion scene. Do not trigger shorter,so update bf here.
-					shorter=0;
-					break;
 				case 1:
-					parent->balance_factor-=1;
+				case -1:
 					shorter=1;//height get shorten,set to 1.
-					break;				
+					break;
+				case 0://Deletion scene. Do not trigger shorter,so update bf here.
+					shorter=0;
+					break;			
 			}
+			parent->balance_factor-=1;
 		}
 		else//node_p is parent's rchild
 		{
@@ -79,19 +78,14 @@ AVLTree* shorter_leaf(AVLTree *root,AVLTree *node_p,AVLTree *parent,int &shorter
 			switch(parent->balance_factor)
 			{
 				case 1:
-					parent->balance_factor+=1;//parent->balance_factor=2;
+				case -1://height get shorten,But may cause rotate at grand-parent level or further.set to 1.
 					shorter=1;
 					break;
-				case 0:
-					parent->balance_factor+=1;//Deletion scene. Do not trigger shorter,so update bf here.
+				case 0://Deletion scene. Do not trigger shorter,so update bf here.
 					shorter=0;
 					break;
-				case -1:
-					//parent has no lchild
-					parent->balance_factor+=1;
-					shorter=1;//height get shorten,But may cause rotate at grand-parent level or further.set to 1.
-					break;
-			}			
+			}
+			parent->balance_factor+=1;
 		}
 	}
 	free(node_p);
@@ -100,6 +94,13 @@ AVLTree* shorter_leaf(AVLTree *root,AVLTree *node_p,AVLTree *parent,int &shorter
 
 /*remove a node which has one child.There is no parent paremeter.
 Prerequisites:node_p has only one child.
+Process:
+ ps_child is node_p's left child or right child;
+ replace node_p by ps_child.It means node_p=ps_child,
+ remove ps_child;
+ push node_p into node_stack;
+ push TYPE_LEFT or TYPE_RIGHT into dir_stack;
+ shorter=1;
 return value:
 1.shorter,whether the tree height got shorten, from function return value.
 2.modified node_p,from function pointer.
@@ -156,40 +157,32 @@ int shorter_double_children(AVLTree *node_p,std::stack<AVLTree *> &node_stack,st
 			AVLTree *ipd=max_value_node(node_p->lchild,parent_ipd,node_stack,dir_stack);//ipd MUST NOT have rchild. ipd is max child in node_p's left subtree.
 			if(node_p==parent_ipd)//node_p is parent_ipd itself
 			{
-				node_p->lchild=ipd->lchild;
-				switch(node_p->balance_factor)
+				parent_ipd->lchild=ipd->lchild;
+				switch(parent_ipd->balance_factor)
 				{
 					case 1://**checked
+					case -1://bf should be update to -2.Current situation, update here
 						shorter=1;//got shorten. Current situation, update bf here!
-						node_p->balance_factor-=1;
 						break;
 					case 0:
-						shorter=0;						
-						node_p->balance_factor=-1;
-						break;
-					case -1:
-						shorter=1;
-						node_p->balance_factor-=1;//bf should be -2.Current situation, update here
-						break;
-				}//node_p->balance_factor-=1;
+						shorter=0;
+						break;					
+				}
+				parent_ipd->balance_factor-=1;
 			}
 			else//node_p is not parent_ipd
 			{//node_p'bf has nothing to do with these 3 cases, will be update in grand-parent trail.
 				switch(parent_ipd->balance_factor)//should be 0 and -1.
 				{//**checked case 1.
-					case 1:
-						parent_ipd->balance_factor+=1;//need to add to stack and rotate						
+					case 1://need to add to stack and rotate
+					case -1://tree height has shorten
 						shorter=1;
 						break;
 					case 0:
-						parent_ipd->balance_factor=1;
 						shorter=0;//?added 20240318
 						break;
-					case -1://**need to re-check
-						parent_ipd->balance_factor=0;//tree height has shorten
-						shorter=1;
-						break;
 				}
+				parent_ipd->balance_factor+=1;
 				parent_ipd->rchild=ipd->lchild;	
 			}
 			node_p->data=ipd->data;		
@@ -353,7 +346,6 @@ int replace_method_inorder,int indicator_of_children_case)
 							parent->balance_factor=-2;
 						case 0://RR case or RL case. Suggest to do RR case.
 							parent->balance_factor=-2;
-							//parent->rchild->balance_factor=-1;//?? what is this?
 							need_balance=3;break;
 						case 1://RL case
 							parent->balance_factor=-2;
@@ -466,47 +458,47 @@ AVLTree* pd_rotate_using_rule(AVLTree *mubst,int need_balance)//mubst's bf has b
 /*Post BST remove node behavior.
 1.Traverse the parent path and adjust the node balance factor.
 2.Rotate if necessary.
-3.Con-junction the grandparent node and the parent node.
+3.Con-junction the grandparent node and the parent(named node_p in the function).
 4.adjust shorter sign to 2 if shorter is 1. (2 indicates in the grand-parent trail. 1 represents the deletion scene.)
 IN parameter:
 1....
-5.indicator_of_children_case:  Currently we engage double children case.
+5.indicator_of_children_case: double children case.0,no; 1,yes, currently we engage double children case.
 OUT parameter£º
 1.new parent,based on pd_junction_rule' value,new tree root,or NULL(during process).
 	If return at end,root is NULL.As function return value.
-2.node_stack,parent node stack in trail of removed node,return as function reference.
+2.node_stack,parent node stack in trail of removed node,return as function reference.No further use.
 3.dir_stack,corresponding to node_stack, same size. According the left or right direction where 
-	a node removal occured.return as function reference.
-4.shorter, the indicator of tree got shorten or indicates process in parent trail.
+	a node removal occured.return as function reference.No further use.
+4.shorter, the indicator of tree got shorten or indicates process in parent trail.No further use.
 */
 AVLTree* post_deletion_rule(std::stack<AVLTree *> &node_stack,std::stack< int > &dir_stack,int &shorter,int replace_method_inorder,
 int indicator_of_children_case)
 {
 	assert(node_stack.size()==dir_stack.size());//the size of 2 stacks must be equal
-	AVLTree *parent=NULL;
+	AVLTree *node_p=NULL;
 	int need_balance=0;//0,do not need balance;1,2,3,4,represent rotate type.
 	int dir_action=-1;
 	while(!node_stack.empty())
 	{
-		parent=node_stack.top();
-		AVLTree *old_parent=parent;//prepare for grand_parent con-junction
+		node_p=node_stack.top();
+		AVLTree *old_p=node_p;//prepare for grand_parent con-junction
 		node_stack.pop();
 		dir_action=dir_stack.top();
 		dir_stack.pop();
-		printf("pass:%zu(%d),%s,shorter=%d.",parent->data,parent->balance_factor,dir_action==TYPE_LEFT?"type_left":"type_right",shorter);//the passed by parent node
-		parent=pd_update_bf_rule(parent,dir_action,shorter,need_balance,
-			replace_method_inorder,indicator_of_children_case);//assign the bf of parent,based on rule
+		printf("pass:%zu(%d),%s,shorter=%d.",node_p->data,node_p->balance_factor,dir_action==TYPE_LEFT?"type_left":"type_right",shorter);//the passed by node_p node
+		node_p=pd_update_bf_rule(node_p,dir_action,shorter,need_balance,
+			replace_method_inorder,indicator_of_children_case);//assign the bf of node_p,based on rule
 		if(need_balance>0)
 		{
-			parent=pd_rotate_using_rule(parent,need_balance);//rotate and adjust balance_factor
+			node_p=pd_rotate_using_rule(node_p,need_balance);//rotate and adjust balance_factor
 			need_balance=0;
 		}
-		//connect the grand-parent(old parent) and parent. parent become the child of grand-parent
-		AVLTree *temp_node=pd_junction_rule(parent,old_parent,node_stack);
-		if(temp_node!=NULL)//The condition indicates that root is parent.We have reach the final node in trail.
+		//connect the grand-parent(old parent) and node_p. node_p become the child of grand-parent
+		AVLTree *temp_node=pd_junction_rule(node_p,old_p,node_stack);
+		if(temp_node!=NULL)//The condition indicates that root is node_p.We have reach the final node in trail.
 		{
-			parent=temp_node;
-			return parent;
+			node_p=temp_node;
+			return node_p;
 		}//if temp_node is NULL, continue to process. The pd_junction_rule 's target is to process the trail until reach root.
 		if(shorter==1)
 			shorter=2;		

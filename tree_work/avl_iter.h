@@ -1,20 +1,29 @@
-/*avl tree iter without height
+/*avl tree insert iter without height
 迭代插入,并完成平衡和父结点连接.
  从下往上更新各结点平衡因子.
-依据规则指定balance_factor,不使用树高更新平衡因子.需要taller标志*/
+依据规则指定balance_factor,不使用树高更新平衡因子.需要taller标志
+20241022: try to use need_balance value 1,2,3,4 to discriminate the rotate type.
+1,LL; 2,LR; 3,RR; 4,RL.
+*/
+
 #include "public_avl.h"
 #include "rotate.h"
 
 /*调整平衡.post_insertion action 1.
+A is mubst. 
+B is A'child which is heavier,
+C is B's child which is heavier.
 入参:mubst,最小不平衡子树的根.
 key,插入或者删除的key.
+need_balance,需要平衡.1,LL; 2,LR; 3,RR; 4,RL.
 返回值:
 mubst,调整平衡的最小不平衡子树.函数返回.
 */
-AVLTree* adjust_balance(AVLTree *mubst,size_t key)
+AVLTree* rotate_and_balance(AVLTree *mubst,size_t key,int need_balance)
 {
 	//adjust unbalance to balance
-	if(mubst->balance_factor>1&& mubst->lchild!=NULL &&key<mubst->lchild->data)//LL case,right rotate
+	//if(mubst->balance_factor>1&& mubst->lchild!=NULL &&key<mubst->lchild->data)//LL case,right rotate
+	if(need_balance==1)
 	{
 		printf("Engaging LL type.\n");
 		//先调整bf,再做旋转
@@ -22,58 +31,59 @@ AVLTree* adjust_balance(AVLTree *mubst,size_t key)
 		mubst->lchild->balance_factor=0;
 		mubst=right_rotate_only(mubst);
 	}
-	else if(mubst->balance_factor<-1&&mubst->rchild!=NULL&&key>mubst->rchild->data)//RR case, left rotate
+	//else if(mubst->balance_factor<-1&&mubst->rchild!=NULL&&key>mubst->rchild->data)//RR case, left rotate
+	else if(need_balance==3)
 	{
 		printf("Engaging RR type.\n");//key=%zu,mubst->rchild's data=%zu.\n",key,mubst->rchild->data);
 		mubst->balance_factor=0;
 		mubst->rchild->balance_factor=0;
 		mubst=left_rotate_only(mubst);
 	}
-	else if(mubst->balance_factor>1&&mubst->lchild!=NULL&&
-		(key<mubst->data&&key>mubst->lchild->data))//LR case.
+	//else if(mubst->balance_factor>1&&mubst->lchild!=NULL&&	(key<mubst->data&&key>mubst->lchild->data))//LR case.
+	else if(need_balance==2)
 	{
 		printf("Engaging LR type.\n");
 		AVLTree *rd=mubst->lchild->rchild;
 		if(key==rd->data)//第一次创建rd结点,比如5678,50,60#
 		{
-			mubst->balance_factor=0;
-			mubst->lchild->balance_factor=0;
+			mubst->balance_factor=0;//A
+			mubst->lchild->balance_factor=0;//B
 		}
 		else if(key<rd->data)//插入到Cl
 		{
-			mubst->balance_factor=-1;
-			mubst->lchild->balance_factor=0;
+			mubst->balance_factor=-1;//A
+			mubst->lchild->balance_factor=0;//B
 		}
 		else if(key>rd->data)//插入到Cr
 		{
-			mubst->balance_factor=0;
-			mubst->lchild->balance_factor=1;
+			mubst->balance_factor=0;//A
+			mubst->lchild->balance_factor=1;//B
 		}
-		rd->balance_factor=0;
+		rd->balance_factor=0;//C
 		mubst->lchild=left_rotate_only(mubst->lchild);
 		mubst=right_rotate_only(mubst);
 	}
-	else if(mubst->balance_factor<-1 && mubst->rchild!=NULL &&
-		(key>mubst->data&&key<mubst->rchild->data))	//RL case.
+	//else if(mubst->balance_factor<-1 && mubst->rchild!=NULL &&	(key>mubst->data&&key<mubst->rchild->data))	//RL case.
+	else if(need_balance==4)
 	{
 		printf("Engaging RL type.\n");
 		AVLTree *ld=mubst->rchild->lchild;//不平衡子树的右子树的左孩子
 		if(key==ld->data)//首次创建ld结点,比如50,100,90#
 		{
-			mubst->balance_factor=0;
-			mubst->rchild->balance_factor=0;
+			mubst->balance_factor=0;//A
+			mubst->rchild->balance_factor=0;//B
 		}
 		else if(key<ld->data)//插入到Cl
 		{
-			mubst->balance_factor=0;
-			mubst->rchild->balance_factor=-1;
+			mubst->balance_factor=0;//A
+			mubst->rchild->balance_factor=-1;//B
 		}
 		else if(key>ld->data)//插入到Cr
 		{
-			mubst->balance_factor=1;
-			mubst->rchild->balance_factor=0;
+			mubst->balance_factor=1;//A
+			mubst->rchild->balance_factor=0;//B
 		}
-		ld->balance_factor=0;
+		ld->balance_factor=0;//C
 //		printf("surprise equal RL:%zu:%zu.\n",key,ld->data);
 		mubst->rchild=right_rotate_only(mubst->rchild);
 		mubst=left_rotate_only(mubst);
@@ -96,68 +106,96 @@ AVLTree* junction(AVLTree *mubst,size_t key,std::stack<AVLTree *> &node_stack)
 	else	//root is mubst
 		return mubst;
 }
-/*udpate parent node's balance factor
-返回值:
-1.parent, from function return value.
+
+/*udpate node_p node's balance factor
+Note: taller will be updated in this function.
+return value:
+1.node_p, from function return value.
 2.taller, from function reference.
-3.need_balance,from function reference.
+3.need_balance,from function reference,default value=0.
 */
-AVLTree* update_bf_based_on_rule(AVLTree* parent,size_t key,int &taller,int &need_balance)
+AVLTree* update_bf_based_on_rule(AVLTree* node_p,size_t key,int &taller,int &need_balance)
 {
 	if(taller==1)//长高才可能触发旋转
-	{//这里判断有几种情况应该设置taller=0			
-		if(key<parent->data)//go left
+	{
+		if(key<node_p->data)//go left
 		{
-			switch(parent->balance_factor)
+			switch(node_p->balance_factor)
 			{
-				case 1://插入前,左边比右边高,需要平衡.LR or LR
-//						parent->balance_factor++;//允许bf==2的存在
-					//mubst=adjust_balance(mubst,key,taller);
-					need_balance=1;//需要adjust_balance函数
+				case 1://插入前,左边比右边高,需要平衡.LL or LR
+//						node_p->balance_factor++;//允许bf==2的存在
+					if( node_p->lchild!=NULL &&key<node_p->lchild->data)//LL case,right rotate
+					{
+						need_balance=1;
+					}
+					if(node_p->lchild!=NULL&&
+						(key<node_p->data&&key>node_p->lchild->data))//LR case.
+					{
+						need_balance=2;
+					}
+					//need_balance=1;//need rotate function
 					taller=0;
 					break;
-				case -1://插入前,右边比左边高;插入后,等高.无需调整.
-//						parent->balance_factor++;//为0
+				case -1://插入前,右边比左边高;插入后,等高.absorbed.无需调整.
+//						node_p->balance_factor++;//为0
+					need_balance=0;
 					taller=0;
+					break;
+				case 0://插入前,左右相等;插入后,左长高,但不需旋转,20241024				
+					need_balance=0;
+					taller=1;
 					break;
 			}
-			parent->balance_factor++;
+			node_p->balance_factor++;
 		}
-		else if(key>parent->data)//go right
+		else if(key>node_p->data)//go right
 		{
-			switch(parent->balance_factor)
+			switch(node_p->balance_factor)
 			{
-				case 1://插入前,左边比右边高,插入后,等高.无需调整.
-//						parent->balance_factor--;//为0
+				case 1://插入前,左边比右边高,插入后,等高.absorbed.无需调整.
+//						node_p->balance_factor--;//为0
+					need_balance=0;
 					taller=0;
 					break;					
 				case -1://插入前,右边比左边高,需要平衡.RR or RL
-//						parent->balance_factor--;//允许bf==-2的存在
-					//mubst=adjust_balance(mubst,key,taller);
-					need_balance=1;//需要adjust_balance函数
+//						node_p->balance_factor--;//允许bf==-2的存在
+					if(node_p->rchild!=NULL && key>node_p->rchild->data)//RR case, left rotate
+					{
+						need_balance=3;
+					}
+					if(  node_p->rchild!=NULL &&
+							(key>node_p->data&&key<node_p->rchild->data))	//RL case.
+					{
+						need_balance=4;
+					}
+					//need_balance=1;//need rotate function
 					taller=0;						
 					break;
+				case 0://插入前,左右相等;插入后,右长高,但不需旋转.20241024
+					need_balance=0;					
+					taller=1;
+					break;
 			}
-			parent->balance_factor--;
+			node_p->balance_factor--;
 		}
 	}//end of if(taller==1)
-	return parent;
+	return node_p;
 }
 
 AVLTree* post_insertion(AVLTree *T,size_t key,std::stack<AVLTree *> &node_stack,int &taller)
 {
 	AVLTree *mubst=T;//assuming parent is mubst
-	int need_balance=0;//0无需调整;1需要adjust_balance函数
+	int need_balance=0;//0无需调整;1,2,3,4,rotate type.
 	while(!node_stack.empty())//根据插入路径,遍历父结点
 	{
 		mubst=node_stack.top();//取栈顶而不退出.//假设parent是mubst.assuming parent is mubst.min un-banlanced sub tree.
 		node_stack.pop();
 		mubst=update_bf_based_on_rule(mubst,key,taller,need_balance);//更新父结点的bf	
-		if(need_balance)//rotate if necessary.根据更新后的父结点bf决定是否旋转,旋转后需要根据规则指定以parent为根的各结点bf.
+		if(need_balance>0)//rotate if necessary.根据更新后的父结点bf决定是否旋转,旋转后需要根据规则指定以parent为根的各结点bf.
 		{
 //			printf("%zu's balance factor:%d.\n",mubst->data,mubst->balance_factor);//如果没有问题,此句不参与调试
-			mubst=adjust_balance(mubst,key);//bf超出1或者-1的才会进行旋转.处理后taller=0,不再长高.
-			need_balance=0;
+			mubst=rotate_and_balance(mubst,key,need_balance);//bf超出1或者-1的才会进行旋转.处理后taller=0,不再长高.
+			need_balance=0;	//taller=0;//have been balanced at this step.but update in update_bf_based_on_rule
 		}
 		//rotate complete.adjust the grand parent .Update the parent reference after rotations if it has changed
 		AVLTree *temp_node=junction(mubst,key,node_stack);//if root is mubst,it has no grand-parent,returns
@@ -191,6 +229,8 @@ AVLTree *insert_avl_node_with_rule(AVLTree *T,size_t key)
 			p->balance_factor=0;
 			taller=1;//长高
 			//确定该结点的父结点
+			if(parent!=NULL)
+				printf("parent's data:%zu.",parent->data);
 			if(parent==NULL)
 				T=p;//p是根结点
 			else if(key < parent->data)//key is less than parent->data
@@ -204,21 +244,22 @@ AVLTree *insert_avl_node_with_rule(AVLTree *T,size_t key)
 			}
 			break;
 		}
-		else if(EQ(key,p->data))//等于时无需插入
-		{
-			break;
-		}
-		else if(LT(key,p->data))//小于时,向左走
+		else if( key< p->data )//小于时,向左走
 		{
 			node_stack.push(p);
 			parent=p;
 			p=p->lchild;
 		}
-		else//greater, go right
+		else if (key > p->data)//greater, go right
 		{
 			node_stack.push(p);
 			parent=p;
 			p=p->rchild;
+		}
+		else //if( key==p->data )//等于时无需插入
+		{
+			printf("Equal and DO NOT insert.\n");
+			break;
 		}
 	}//end of while
 
