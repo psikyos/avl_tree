@@ -49,7 +49,7 @@ struct AVLTree
 Status visit_integer_with_bf(size_t data,int balance_factor,int whether_display_bf)
 {
 	if(whether_display_bf)
-	{	//À¨ºÅÄÚµÄÊÇ¸Ã½áµãÆ½ºâÒò×Ó
+	{	//æ‹¬å·å†…çš„æ˜¯è¯¥ç»“ç‚¹å¹³è¡¡å› å­
 		printf("%zu(%d), ",data,balance_factor);
 	}
 	else
@@ -60,7 +60,7 @@ Status visit_integer_with_bf(size_t data,int balance_factor,int whether_display_
 	return OK;
 }
 
-Status PreOrderTraverse(AVLTree *T,int whether_display_bf)//ÏÈĞò±éÀú
+Status PreOrderTraverse(AVLTree *T,int whether_display_bf)//å…ˆåºéå†
 {
 	if(T)
 	{
@@ -78,7 +78,7 @@ Status PreOrderTraverse(AVLTree *T,int whether_display_bf)//ÏÈĞò±éÀú
 	return ERROR;
 }
 
-Status InOrderTraverse(AVLTree *T,int whether_display_bf)//ÖĞĞò±éÀú¶ş²æÊ÷
+Status InOrderTraverse(AVLTree *T,int whether_display_bf)//ä¸­åºéå†äºŒå‰æ ‘
 {
 	if(T)
 	{
@@ -96,7 +96,7 @@ Status InOrderTraverse(AVLTree *T,int whether_display_bf)//ÖĞĞò±éÀú¶ş²æÊ÷
 	return ERROR;
 }
 
-Status PostOrderTraverse(AVLTree *T,int whether_display_bf)//ºóĞò±éÀú¶ş²æÊ÷
+Status PostOrderTraverse(AVLTree *T,int whether_display_bf)//ååºéå†äºŒå‰æ ‘
 {
 	if(T)
 	{
@@ -130,7 +130,7 @@ Status LevelOrderTraverse_nonrecursive(AVLTree *T,int whether_display_bf)
 	return OK;
 }
 
-//·µ»Ø×Ö·û,ÈçĞèÊı×Ö,ÔòÊ¹ÓÃatoi×ª»»
+//è¿”å›å­—ç¬¦,å¦‚éœ€æ•°å­—,åˆ™ä½¿ç”¨atoiè½¬æ¢
 string get_ini_value(string section, string key, string filename) {
     ifstream file(filename.c_str());
     string line;

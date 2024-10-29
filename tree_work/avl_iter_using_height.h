@@ -1,15 +1,15 @@
 /*insert avl node iterative,balanced using tree height
-Ê¹ÓÃµü´ú´´½¨avlÊ÷,Æ½ºâÊ¹ÓÃÊ÷¸ß
+ä½¿ç”¨è¿­ä»£åˆ›å»ºavlæ ‘,å¹³è¡¡ä½¿ç”¨æ ‘é«˜
 */
 #include <stdlib.h>
 #include <stack>
 #include "public_avl.h"
 
-//ÒòÎªÀàĞÍÎªLL,RR,LR,RLĞÍ,ËùÒÔ×îĞ¡²»Æ½ºâ×ÓÊ÷ÔÚ¸¸¸¸½áµãÉÏ?
-//Ê¹ÓÃÊ÷¸ß¾ö¶¨Æ½ºâÒò×Ó
+//å› ä¸ºç±»å‹ä¸ºLL,RR,LR,RLå‹,æ‰€ä»¥æœ€å°ä¸å¹³è¡¡å­æ ‘åœ¨çˆ¶çˆ¶ç»“ç‚¹ä¸Š?
+//ä½¿ç”¨æ ‘é«˜å†³å®šå¹³è¡¡å› å­
 AVLTree * insert_avl_node_iter_with_height(AVLTree *T,size_t key)
 {
-	//Ô­bst²åÈëºó,·µ»ØµÄÊÇ¸ÃÊ÷µÄ¸ù½áµã
+	//åŸbstæ’å…¥å,è¿”å›çš„æ˜¯è¯¥æ ‘çš„æ ¹ç»“ç‚¹
 	std::stack<AVLTree *>node_stack;//record the node which key is passed by
 	AVLTree *p=T,*parent=NULL;//parent is the parent of p. p is current node.
 	AVLTree *grand_parent=NULL;//grand_parent is the parent of variable parent.
@@ -21,9 +21,9 @@ AVLTree * insert_avl_node_iter_with_height(AVLTree *T,size_t key)
 			p->data=key;//place here
 			p->lchild=NULL;
 			p->rchild=NULL;
-			//È·¶¨¸Ã½áµãµÄ¸¸½áµã
+			//ç¡®å®šè¯¥ç»“ç‚¹çš„çˆ¶ç»“ç‚¹
 			if(parent==NULL)
-				T=p;//pÊÇ¸ù½áµã
+				T=p;//pæ˜¯æ ¹ç»“ç‚¹
 			else if(LT(key,parent->data))
 				parent->lchild=p;
 			else if(EQ(key,parent->data))
@@ -33,15 +33,15 @@ AVLTree * insert_avl_node_iter_with_height(AVLTree *T,size_t key)
 				//return T;//return NULL;
 				break;
 			}
-			else//´óÓÚ
+			else//å¤§äº
 				parent->rchild=p;
 			break;
 		}
-		else if(EQ(key,p->data))//µÈÓÚÊ±ÎŞĞè²åÈë
+		else if(EQ(key,p->data))//ç­‰äºæ—¶æ— éœ€æ’å…¥
 		{
 			break;
 		}
-		else if(LT(key,p->data))//Ğ¡ÓÚÊ±,Ïò×ó×ß
+		else if(LT(key,p->data))//å°äºæ—¶,å‘å·¦èµ°
 		{
 			node_stack.push(p);
 			parent=p;
@@ -55,8 +55,8 @@ AVLTree * insert_avl_node_iter_with_height(AVLTree *T,size_t key)
 		}
 	}
 	
-//	Àí½âT,TÔÚÇ°ÃæÎªÊ÷µÄ¸ù¡£ÔÚÏÂÃæ´úÂëÖĞ£¬Îª²åÈëµÄ½áµã.ÊÇ·ñĞèÒª1¸ö3½áµãµÄ¶ÓÁĞ»òÕßÕ»
-	//ÒÔÉÏÎªbst action
+//	ç†è§£T,Tåœ¨å‰é¢ä¸ºæ ‘çš„æ ¹ã€‚åœ¨ä¸‹é¢ä»£ç ä¸­ï¼Œä¸ºæ’å…¥çš„ç»“ç‚¹.æ˜¯å¦éœ€è¦1ä¸ª3ç»“ç‚¹çš„é˜Ÿåˆ—æˆ–è€…æ ˆ
+	//ä»¥ä¸Šä¸ºbst action
 	//now, node_stack stored the path when key insert passed by.
 	while(!node_stack.empty())//check the path, update the balance factor
 	{

@@ -8,10 +8,10 @@ the complete recursive method it provides.
 
 #ifndef REMOVE_NODE_GEEK
 #define REMOVE_NODE_GEEK
-/*ÕÒµ½½áµãpµÄÖĞĞòÇ°Çı,inorder predecessor
-¼ÙÉè½áµãp²»Îª¿Õ.
-·µ»ØÖµ:
-1.node_pµÄÖĞĞòÇ°Çıipd,º¯Êı·µ»ØÖµ.
+/*æ‰¾åˆ°ç»“ç‚¹pçš„ä¸­åºå‰é©±,inorder predecessor
+å‡è®¾ç»“ç‚¹pä¸ä¸ºç©º.
+è¿”å›å€¼:
+1.node_pçš„ä¸­åºå‰é©±ipd,å‡½æ•°è¿”å›å€¼.
 */
 AVLTree *max_node_gk(AVLTree *psleftchild)
 {
@@ -23,10 +23,10 @@ AVLTree *max_node_gk(AVLTree *psleftchild)
 	return ipd;
 }
 
-/*ÕÒµ½½áµãpµÄÖĞĞòºó¼Ì,¼´ÓÒ×ÓÊ÷×îĞ¡Öµ,Ò»¶¨ÔÚpµÄÓÒ×ÓÊ÷µÄ×î×óÏÂµÄ½áµã,ÇÒÖµÔÚpµÄÓÒ×ÓÊ÷ÖĞ×îĞ¡.
-¼ÙÉèp½áµã²»Îª¿Õ.
-·µ»ØÖµ:
-1.node_pµÄÖĞĞòºó¼Ìios,º¯Êı·µ»ØÖµ.
+/*æ‰¾åˆ°ç»“ç‚¹pçš„ä¸­åºåç»§,å³å³å­æ ‘æœ€å°å€¼,ä¸€å®šåœ¨pçš„å³å­æ ‘çš„æœ€å·¦ä¸‹çš„ç»“ç‚¹,ä¸”å€¼åœ¨pçš„å³å­æ ‘ä¸­æœ€å°.
+å‡è®¾pç»“ç‚¹ä¸ä¸ºç©º.
+è¿”å›å€¼:
+1.node_pçš„ä¸­åºåç»§ios,å‡½æ•°è¿”å›å€¼.
 */
 AVLTree *min_node_gk(AVLTree* psrightchild)
 {

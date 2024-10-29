@@ -1,13 +1,13 @@
 /*
 avl tree remove node.
-ÑĞµÀÄÑ5.14¶ş²æÅÅĞòÊ÷
+ç ”é“éš¾5.14äºŒå‰æ’åºæ ‘
 https://www.geeksforgeeks.org/deletion-in-an-avl-tree/
 https://dl.acm.org/doi/10.1145/800197.806043
 https://en.wikipedia.org/wiki/AVL_tree#Comparison_to_other_structures
 https://dl.acm.org/doi/pdf/10.1145/355609.362340
 https://zhjwpku.com/assets/pdf/AED2-10-avl-paper.pdf
 https://www.mathnet.ru/php/archive.phtml?wshow=paper&jrnid=dan&paperid=26964&option_lang=eng
-É¾³ıºó,ĞèÒªÒ»Ö±ËİÔ´µ½¸ù½áµã,Íê³ÉÆ½ºâ¡£
+åˆ é™¤å,éœ€è¦ä¸€ç›´æº¯æºåˆ°æ ¹ç»“ç‚¹,å®Œæˆå¹³è¡¡ã€‚
 remove node which has doule children,update its bf.
 */
 #include "public_avl.h"
@@ -20,13 +20,13 @@ remove node which has doule children,update its bf.
 //the following define the type of AVL tree. to combine 4 case:left left,left right,right right,right left.
 #define TYPE_LEFT 1
 #define TYPE_RIGHT 2
-/*ÔÚavlÊ÷ÖĞËÑË÷,·µ»ØÕÒµ½µÄ½áµã.µİ¹é·½·¨.ÑĞµÀÄÑµÄË¼Â·,ÏÈÕÒµ½ĞèÒªÉ¾³ıµÄ½áµã,ÔÙ½øĞĞ´¦Àí.
-Í¬Ê±ĞèÒª¼ÇÂ¼ÏÂ¾­¹ıµÄ¸¸½áµã
-·µ»ØÖµ:
-1.ÕÒµ½µÄ½áµãT.ÈôÎ´ÕÒµ½,·µ»ØNULL,º¯ÊıµÄ·µ»ØÖµ;
-2.½áµãTµÄ¸¸½áµãparent.ÈôTÎªroot,ÔòparentÎªNULL.
-Èë²Î:
-×¢ÒâparentÊÇÒıÓÃ.
+/*åœ¨avlæ ‘ä¸­æœç´¢,è¿”å›æ‰¾åˆ°çš„ç»“ç‚¹.é€’å½’æ–¹æ³•.ç ”é“éš¾çš„æ€è·¯,å…ˆæ‰¾åˆ°éœ€è¦åˆ é™¤çš„ç»“ç‚¹,å†è¿›è¡Œå¤„ç†.
+åŒæ—¶éœ€è¦è®°å½•ä¸‹ç»è¿‡çš„çˆ¶ç»“ç‚¹
+è¿”å›å€¼:
+1.æ‰¾åˆ°çš„ç»“ç‚¹T.è‹¥æœªæ‰¾åˆ°,è¿”å›NULL,å‡½æ•°çš„è¿”å›å€¼;
+2.ç»“ç‚¹Tçš„çˆ¶ç»“ç‚¹parent.è‹¥Tä¸ºroot,åˆ™parentä¸ºNULL.
+å…¥å‚:
+æ³¨æ„parentæ˜¯å¼•ç”¨.
 */
 AVLTree *search_node(AVLTree *T,size_t key,AVLTree *&parent,std::stack<AVLTree *> &node_stack,std::stack< int > &dir_stack)
 {
@@ -56,11 +56,11 @@ AVLTree *search_node(AVLTree *T,size_t key,AVLTree *&parent,std::stack<AVLTree *
 }
 
 /*find the inorder predecessor of node_p
-ÕÒµ½½áµãpµÄÖĞĞòÇ°Çı,¼´×ó×ÓÊ÷µÄ×îĞ¡Öµ,Ò»¶¨ÔÚpµÄ×ó×ÓÊ÷µÄ×îÓÒÏÂ½áµã,ÇÒÖµÔÚpµÄ×ó×ÓÊ÷ÖĞ×îĞ¡.
-¼ÙÉè½áµãp²»Îª¿Õ.´Ëº¯ÊıÖ»Éæ¼°pµÄ×ó×ÓÊ÷.
-·µ»ØÖµ:
-1.node_pµÄÖĞĞòÇ°Çı,º¯Êı·µ»ØÖµ.
-2.node_pµÄÖĞĞòÇ°ÇıµÄ¸¸½áµãparent_ipd,´ÓÈë²Î·µ»Ø.
+æ‰¾åˆ°ç»“ç‚¹pçš„ä¸­åºå‰é©±,å³å·¦å­æ ‘çš„æœ€å°å€¼,ä¸€å®šåœ¨pçš„å·¦å­æ ‘çš„æœ€å³ä¸‹ç»“ç‚¹,ä¸”å€¼åœ¨pçš„å·¦å­æ ‘ä¸­æœ€å°.
+å‡è®¾ç»“ç‚¹pä¸ä¸ºç©º.æ­¤å‡½æ•°åªæ¶‰åŠpçš„å·¦å­æ ‘.
+è¿”å›å€¼:
+1.node_pçš„ä¸­åºå‰é©±,å‡½æ•°è¿”å›å€¼.
+2.node_pçš„ä¸­åºå‰é©±çš„çˆ¶ç»“ç‚¹parent_ipd,ä»å…¥å‚è¿”å›.
 3.node_stack,from function reference.
 4.dir_stack,from function reference.
 */
@@ -70,7 +70,7 @@ AVLTree* max_value_node(AVLTree *p_lchildtree,AVLTree *&parent_ipd,std::stack<AV
 	node_stack.push(parent_ipd);
 	dir_stack.push(TYPE_LEFT);
 	while(foregoer->rchild!=NULL)
-	{//¿´Ç°ÇıÊÇ·ñĞèÒª¸¸½áµã
+	{//çœ‹å‰é©±æ˜¯å¦éœ€è¦çˆ¶ç»“ç‚¹
 		parent_ipd=foregoer;
 		node_stack.push(foregoer);//check the stack
 		dir_stack.push(TYPE_RIGHT);
@@ -80,11 +80,11 @@ AVLTree* max_value_node(AVLTree *p_lchildtree,AVLTree *&parent_ipd,std::stack<AV
 }
 
 /*find the inorder successor of node_p
-ÕÒµ½½áµãpµÄÖĞĞòºó¼Ì,¼´ÓÒ×ÓÊ÷×îĞ¡Öµ,Ò»¶¨ÔÚpµÄÓÒ×ÓÊ÷µÄ×î×óÏÂµÄ½áµã,ÇÒÖµÔÚpµÄÓÒ×ÓÊ÷ÖĞ×îĞ¡.
-¼ÙÉèp½áµã²»Îª¿Õ.
-·µ»ØÖµ:
-1.node_pµÄÖĞĞòºó¼Ì,º¯Êı·µ»ØÖµ.
-2.node_pµÄÖĞĞòºó¼ÌµÄ¸¸½áµã,´ÓÈë²Î·µ»Ø.
+æ‰¾åˆ°ç»“ç‚¹pçš„ä¸­åºåç»§,å³å³å­æ ‘æœ€å°å€¼,ä¸€å®šåœ¨pçš„å³å­æ ‘çš„æœ€å·¦ä¸‹çš„ç»“ç‚¹,ä¸”å€¼åœ¨pçš„å³å­æ ‘ä¸­æœ€å°.
+å‡è®¾pç»“ç‚¹ä¸ä¸ºç©º.
+è¿”å›å€¼:
+1.node_pçš„ä¸­åºåç»§,å‡½æ•°è¿”å›å€¼.
+2.node_pçš„ä¸­åºåç»§çš„çˆ¶ç»“ç‚¹,ä»å…¥å‚è¿”å›.
 */
 AVLTree* min_value_node(AVLTree *p_rchildtree,AVLTree *&parent_ios,std::stack<AVLTree *> &node_stack,std::stack< int > &dir_stack)
 {
@@ -102,17 +102,17 @@ AVLTree* min_value_node(AVLTree *p_rchildtree,AVLTree *&parent_ios,std::stack<AV
 }
 
 /*assuming node_p has 2 children
- using inorder successor(ÖĞĞòºó¼Ì,ios for short)À´Ìæ´únode_p
+ using inorder successor(ä¸­åºåç»§,ios for short)æ¥æ›¿ä»£node_p
 return value:
 1.the root of searched tree, from function return value
 */
 AVLTree* process_double_children(AVLTree *root,AVLTree *node_p,std::stack<AVLTree *> &node_stack,std::stack< int > &dir_stack,int replace_method_inorder)
 {
 	AVLTree *parent_unified=NULL;//for calc the height
-	if(replace_method_inorder==IOS)//ÖĞĞòºó¼Ì
+	if(replace_method_inorder==IOS)//ä¸­åºåç»§
 	{
-		AVLTree *parent_ios=node_p;//ÖĞĞòºó¼ÌµÄ¸¸½áµã¿ÉÄÜÊÇnode_p
-		AVLTree *ios=min_value_node(node_p->rchild,parent_ios,node_stack,dir_stack);//node_pµÄÖĞĞòºó¼Ì.ÖĞĞòºó¼ÌÒ»¶¨Ã»ÓĞ×ó×ÓÊ÷.ios=inorder successor
+		AVLTree *parent_ios=node_p;//ä¸­åºåç»§çš„çˆ¶ç»“ç‚¹å¯èƒ½æ˜¯node_p
+		AVLTree *ios=min_value_node(node_p->rchild,parent_ios,node_stack,dir_stack);//node_pçš„ä¸­åºåç»§.ä¸­åºåç»§ä¸€å®šæ²¡æœ‰å·¦å­æ ‘.ios=inorder successor
 		parent_unified=parent_ios;//for calc the height
 		if(node_p==parent_ios)
 			parent_ios->rchild=ios->rchild;
@@ -121,7 +121,7 @@ AVLTree* process_double_children(AVLTree *root,AVLTree *node_p,std::stack<AVLTre
 		node_p->data=ios->data;
 		free(ios);
 	}
-	else if(replace_method_inorder==IPD)//ÖĞĞòÇ°Çı
+	else if(replace_method_inorder==IPD)//ä¸­åºå‰é©±
 	{
 		AVLTree *parent_ipd=node_p;
 		AVLTree *ipd=max_value_node(node_p->lchild,parent_ipd,node_stack,dir_stack);
@@ -140,7 +140,7 @@ AVLTree* process_double_children(AVLTree *root,AVLTree *node_p,std::stack<AVLTre
 	return root;
 }
 
-//´ø¸¸½áµãµÄÒÆ³ı·¨.·ÏÆú.deserted function
+//å¸¦çˆ¶ç»“ç‚¹çš„ç§»é™¤æ³•.åºŸå¼ƒ.deserted function
 AVLTree* process_one_child2_desert(AVLTree*root,AVLTree* node_p,AVLTree* parent)
 {
 	AVLTree *node_p_child=(node_p->lchild!=NULL?node_p->lchild:node_p->rchild);
@@ -157,8 +157,8 @@ AVLTree* process_one_child2_desert(AVLTree*root,AVLTree* node_p,AVLTree* parent)
 	return root;
 }
 
-/*²»´ø¸¸½áµãµÄÒÆ³ı·¨
-Ç°ÖÃÌõ¼ş:node_p has only one child.
+/*ä¸å¸¦çˆ¶ç»“ç‚¹çš„ç§»é™¤æ³•
+å‰ç½®æ¡ä»¶:node_p has only one child.
 return value:
 1.the root node of searched tree,function return value.
 2.modified node_p,from function pointer.
@@ -175,10 +175,10 @@ AVLTree* process_one_child(AVLTree*root,AVLTree* node_p,std::stack<AVLTree *> &n
 	return root;
 }
 
-/*Ç°ÖÃÒªÇó:node_p,Ã»ÓĞ×Ó½áµã,¼´Ò¶×Ó½áµã.Ê¹ÓÃASSERT×öÅĞ¶Ï.
-É¾³ınode_p,²¢¸üĞÂnode_pµÄ¸¸½áµãparentµÄº¢×Ó½áµãÖ¸Ïò
-·µ»ØÖµ:
-¸ù½áµã.Èônode_pÎª¸ù½áµã,Ôò·µ»ØÎª¿ÕÊ÷.
+/*å‰ç½®è¦æ±‚:node_p,æ²¡æœ‰å­ç»“ç‚¹,å³å¶å­ç»“ç‚¹.ä½¿ç”¨ASSERTåšåˆ¤æ–­.
+åˆ é™¤node_p,å¹¶æ›´æ–°node_pçš„çˆ¶ç»“ç‚¹parentçš„å­©å­ç»“ç‚¹æŒ‡å‘
+è¿”å›å€¼:
+æ ¹ç»“ç‚¹.è‹¥node_pä¸ºæ ¹ç»“ç‚¹,åˆ™è¿”å›ä¸ºç©ºæ ‘.
 */
 AVLTree* process_no_child(AVLTree *root,AVLTree *node_p,AVLTree *parent)
 {
@@ -303,10 +303,10 @@ AVLTree* pd_junction_rule(AVLTree* mubst,AVLTree* old_p,std::stack<AVLTree *> &n
 		return mubst;
 }
 
-/*bstÉ¾³ıÍê³ÉºóµÄ¶¯×÷
-2.±éÀú¸¸Â·¾¶,µ÷Õû½áµãÆ½ºâÒò×Ó.
-3.Á¬½Ó×æ¸¸½áµãºÍ¸¸½áµã.
-Èë²ÎÎªÉ¾³ı½áµãÉ¾³ıÂ·¾¶ÉÏµÄËùÓĞ¸¸½áµã,µ÷ÓÃÒ»´Î±¾º¯Êı´«Èë1¸ö¸¸½áµã½øĞĞ¼ì²é
+/*bståˆ é™¤å®Œæˆåçš„åŠ¨ä½œ
+2.éå†çˆ¶è·¯å¾„,è°ƒæ•´ç»“ç‚¹å¹³è¡¡å› å­.
+3.è¿æ¥ç¥–çˆ¶ç»“ç‚¹å’Œçˆ¶ç»“ç‚¹.
+å…¥å‚ä¸ºåˆ é™¤ç»“ç‚¹åˆ é™¤è·¯å¾„ä¸Šçš„æ‰€æœ‰çˆ¶ç»“ç‚¹,è°ƒç”¨ä¸€æ¬¡æœ¬å‡½æ•°ä¼ å…¥1ä¸ªçˆ¶ç»“ç‚¹è¿›è¡Œæ£€æŸ¥
 */
 AVLTree* post_deletion(AVLTree* T,size_t key,std::stack<AVLTree *> &node_stack)
 {
@@ -331,19 +331,19 @@ AVLTree* post_deletion(AVLTree* T,size_t key,std::stack<AVLTree *> &node_stack)
 	return T;
 }
 
-/*ÔÚ¸ø¶¨µÄavlÊ÷ÖĞÉ¾³ıÒ»¸öËÑË÷µ½µÄÖµµÄ½áµã,²¢µ÷ÕûÆ½ºâ.·µ»Ø´¦ÀíÍê³ÉµÄÊ÷µÄ¸ù
-1.ÊµÏÖbstÉ¾³ı
-2.±éÀú¸¸Â·¾¶,µ÷Õû½áµãÆ½ºâÒò×Ó.post_deletion
-3.Á¬½Ó×æ¸¸½áµãºÍ¸¸½áµã.post_deletion
+/*åœ¨ç»™å®šçš„avlæ ‘ä¸­åˆ é™¤ä¸€ä¸ªæœç´¢åˆ°çš„å€¼çš„ç»“ç‚¹,å¹¶è°ƒæ•´å¹³è¡¡.è¿”å›å¤„ç†å®Œæˆçš„æ ‘çš„æ ¹
+1.å®ç°bståˆ é™¤
+2.éå†çˆ¶è·¯å¾„,è°ƒæ•´ç»“ç‚¹å¹³è¡¡å› å­.post_deletion
+3.è¿æ¥ç¥–çˆ¶ç»“ç‚¹å’Œçˆ¶ç»“ç‚¹.post_deletion
 */
 AVLTree* remove_avl_tree_node_yandaonan(AVLTree *T,size_t key,int replace_method_inorder)
 {
-	/*1.ÕÒµ½ÒªÉ¾³ıµÄ½áµã;
-	2.Èç¹û¸Ã½áµãÊÇÒ¶×Ó,É¾³ı;
-	3.Èç¹ûÓĞµ¥º¢×Ó,ÔòÉ¾³ı¸Ã½áµãºó,º¢×Ó½áµã¶¥ÉÏ;
-	4.Èç¹ûÓĞË«º¢×Ó,ÔòÉ¾³ı¸Ã½áµãºó,½áµãµÄÖĞĞòºó¼Ì¶¥ÉÏ;(ÖĞĞòºó¼ÌÊÇ±»É¾½áµãÓÒ×ÓÊ÷ÉÏ×îĞ¡µÄµã)
-	5.´Ó±»É¾³ıµÄ½áµã¿ªÊ¼ÍùÉÏ²éÕÒ²¢¸üĞÂ¸÷½áµãbf,ÕÒµ½µÚ1¸ö²»Æ½ºâ½áµãz,¸ù¾İ»ØËİÂ·¾¶ÉÏ¸÷¼¶¸¸½áµãxºÍyÇé¿ö,ÈÔÈ»·ÖÎª4Àà,LL,RR,LR,RL,Ğı×ªÊ¹Ö®Æ½ºâ
-	6.´Óz¿ªÊ¼¼ÌĞø»ØËİ,ÕÒµ½Â·¾¶ÉÏ²»Æ½ºâµÄ½áµã,²¢µ÷ÕûÆ½ºâ,Ö±µ½ÕÒµ½¸ù½áµã,µ÷Õû½áÊø¡£
+	/*1.æ‰¾åˆ°è¦åˆ é™¤çš„ç»“ç‚¹;
+	2.å¦‚æœè¯¥ç»“ç‚¹æ˜¯å¶å­,åˆ é™¤;
+	3.å¦‚æœæœ‰å•å­©å­,åˆ™åˆ é™¤è¯¥ç»“ç‚¹å,å­©å­ç»“ç‚¹é¡¶ä¸Š;
+	4.å¦‚æœæœ‰åŒå­©å­,åˆ™åˆ é™¤è¯¥ç»“ç‚¹å,ç»“ç‚¹çš„ä¸­åºåç»§é¡¶ä¸Š;(ä¸­åºåç»§æ˜¯è¢«åˆ ç»“ç‚¹å³å­æ ‘ä¸Šæœ€å°çš„ç‚¹)
+	5.ä»è¢«åˆ é™¤çš„ç»“ç‚¹å¼€å§‹å¾€ä¸ŠæŸ¥æ‰¾å¹¶æ›´æ–°å„ç»“ç‚¹bf,æ‰¾åˆ°ç¬¬1ä¸ªä¸å¹³è¡¡ç»“ç‚¹z,æ ¹æ®å›æº¯è·¯å¾„ä¸Šå„çº§çˆ¶ç»“ç‚¹xå’Œyæƒ…å†µ,ä»ç„¶åˆ†ä¸º4ç±»,LL,RR,LR,RL,æ—‹è½¬ä½¿ä¹‹å¹³è¡¡
+	6.ä»zå¼€å§‹ç»§ç»­å›æº¯,æ‰¾åˆ°è·¯å¾„ä¸Šä¸å¹³è¡¡çš„ç»“ç‚¹,å¹¶è°ƒæ•´å¹³è¡¡,ç›´åˆ°æ‰¾åˆ°æ ¹ç»“ç‚¹,è°ƒæ•´ç»“æŸã€‚
 	*/
 	AVLTree *parent=NULL;
 	std::stack<AVLTree *>node_stack;//record the node which key is passed by
@@ -357,7 +357,7 @@ AVLTree* remove_avl_tree_node_yandaonan(AVLTree *T,size_t key,int replace_method
 		if(p->lchild==NULL&&p->rchild==NULL)//p is leaf
 		{
 			printf("remove leaf node.\n");
-			T=process_no_child(T,p,parent);//´¦Àí½áµãp,·µ»Ø´¦ÀíºóµÄ¸ù½áµã.¸¸½áµãÎŞĞèÈëstack,ÒòÎªÇ°ÃæÒÑ¾­Èë¹ıstack
+			T=process_no_child(T,p,parent);//å¤„ç†ç»“ç‚¹p,è¿”å›å¤„ç†åçš„æ ¹ç»“ç‚¹.çˆ¶ç»“ç‚¹æ— éœ€å…¥stack,å› ä¸ºå‰é¢å·²ç»å…¥è¿‡stack
 		}
 		else if(p->lchild!=NULL&&p->rchild!=NULL)//p has 2 children
 		{//use inorder successor(ios) to replace. ios should be re-evaluate the balance factor

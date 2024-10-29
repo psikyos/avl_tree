@@ -31,6 +31,25 @@ void all_traverse(AVLTree *T,int whether_display_bf)//遍历AVL树,whether_displ
 	printf("\n");
 }
 
+void insertion_method_talk(int insert_method)
+{
+	switch(insert_method)
+	{
+		case 1:
+			printf("(insert_recursive).\n");//递归的
+			break;
+		case 2:
+			printf("(insert_iter_with_height).\n");
+			break;
+		case 3:
+			printf("(insert_with_rule).\n");
+			break;
+		case 4:
+			printf("(insert_with_book).\n");
+			break;
+	}
+}
+
 /*input example,end with #:
 使用bst建树
 使用AVL建树
@@ -98,14 +117,17 @@ void all_traverse(AVLTree *T,int whether_display_bf)//遍历AVL树,whether_displ
 8.30,10,80,5,70,90,20,4,6,13,25,100,12,28,15#
 特殊输入30,10,80,5,70,90,20,4,6#
 */
-AVLTree* createAVLTree(AVLTree *T)
+AVLTree* createAVLTree(AVLTree *T,int insert_method)
 {//avl建立树,不存在先中后序的输入序列
 	//printf("root's node version AVL iter_rule_bf:");
 	//左右分布时,可以考虑中序输入avl结点.
-	printf("AVLTree.separated by ',' or space,end with '#':");
+	printf("AVLTree,Debug Mode:%s.",WHETHER_DEBUG?"Yes":"No");	
+	//decide to show WHETHER_DEBUG mode.
 	char ch;
 	size_t num;
 	int taller=0;//variable for book
+	insertion_method_talk(insert_method);//display the message once	
+	printf("separated by ',' or space,end with '#':");
 	while(1)
 	{
 		if(scanf("%zu%c",&num,&ch)==2)
@@ -113,10 +135,21 @@ AVLTree* createAVLTree(AVLTree *T)
 			//process entered num,once process one number,
 			if(WHETHER_DEBUG)
 				printf("get '%zu ''%c',",num,ch);
-//			T=insert_avl_node(T,num);//取消注释生成avlcur程序
-//			T=insert_avl_node_iter_with_height(T,num);//使用树高计算bf,建立avl树
-			T=insert_avl_node_with_rule(T,num);//建立avl树,使用规则计算bf
-//			T=insert_avl_node_recu_book(T,num,taller);//教科书上的avl代码
+			switch(insert_method)
+			{
+				case 1:
+					T=insert_avl_node(T,num);//取消注释生成avlcur程序
+					break;
+				case 2:
+					T=insert_avl_node_iter_with_height(T,num);//使用树高计算bf,建立avl树
+					break;
+				case 3:
+					T=insert_avl_node_with_rule(T,num);//建立avl树,使用规则计算bf
+					break;
+				case 4:
+					T=insert_avl_node_recu_book(T,num,taller);//教科书上的avl代码
+					break;
+			}
 //			T=BST_insert_iter(T,num);//在树T中插入结点,建立BST树.在avl中不用的代码
 			if(ch=='#')
 				break;
@@ -177,9 +210,14 @@ int main()
 	int whether_display_bf=atoi(value.data());
 	
 	//debug sign read in public_avl.h
-
+	
+	//read insertion method
+	section_name="insertion";	key_name="insertional_method";
+	value=get_ini_value(section_name, key_name, file_name);//fetch the insertion method
+	int insert_method=atoi(value.data());
+	
 	AVLTree *root=NULL;
-	root=createAVLTree(root);
+	root=createAVLTree(root,insert_method);
 	size_t height_recu=height_of_tree(root);
 	size_t height1=height_of_tree_iter(root);
 	size_t height2=height_of_tree_iter2(root);

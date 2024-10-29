@@ -108,7 +108,7 @@ size_t height_of_tree_iter3(AVLTree *T)//single loop for using node_count to cal
 	return level;
 }
 
-size_t cnt_node_of_tree(AVLTree *T)//µÃµ½Ê÷ÖÐ×ÜµÄ½áµãÊý
+size_t cnt_node_of_tree(AVLTree *T)//å¾—åˆ°æ ‘ä¸­æ€»çš„ç»“ç‚¹æ•°
 {
 	AVLTree *cur_node=NULL;
 	size_t all_node_count=0,level_node_count=0;//all_node_count represents total node count. level_node_count represents current level node count.

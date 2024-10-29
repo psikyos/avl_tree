@@ -1,9 +1,9 @@
 /*avl_recursive.h
-Ê¹ÓÃµİ¹é´´½¨AVLÊ÷
+ä½¿ç”¨é€’å½’åˆ›å»ºAVLæ ‘
 */
 #include "rotate.h"
 
-AVLTree * insert_avl_node(AVLTree *T,size_t key)//²åÈëºó,Ê¹ÓÃÊ÷¸ß,ÇÒÆ½ºâµÄ½áµã.Ê÷¸ß¾ö¶¨Æ½ºâÒò×Ó
+AVLTree * insert_avl_node(AVLTree *T,size_t key)//æ’å…¥å,ä½¿ç”¨æ ‘é«˜,ä¸”å¹³è¡¡çš„ç»“ç‚¹.æ ‘é«˜å†³å®šå¹³è¡¡å› å­
 {
 	if(T==NULL)
 	{

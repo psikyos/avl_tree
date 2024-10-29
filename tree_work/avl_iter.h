@@ -1,7 +1,7 @@
 /*avl tree insert iter without height
-µü´ú²åÈë,²¢Íê³ÉÆ½ºâºÍ¸¸½áµãÁ¬½Ó.
- ´ÓÏÂÍùÉÏ¸üĞÂ¸÷½áµãÆ½ºâÒò×Ó.
-ÒÀ¾İ¹æÔòÖ¸¶¨balance_factor,²»Ê¹ÓÃÊ÷¸ß¸üĞÂÆ½ºâÒò×Ó.ĞèÒªtaller±êÖ¾
+è¿­ä»£æ’å…¥,å¹¶å®Œæˆå¹³è¡¡å’Œçˆ¶ç»“ç‚¹è¿æ¥.
+ ä»ä¸‹å¾€ä¸Šæ›´æ–°å„ç»“ç‚¹å¹³è¡¡å› å­.
+ä¾æ®è§„åˆ™æŒ‡å®šbalance_factor,ä¸ä½¿ç”¨æ ‘é«˜æ›´æ–°å¹³è¡¡å› å­.éœ€è¦talleræ ‡å¿—
 20241022: try to use need_balance value 1,2,3,4 to discriminate the rotate type.
 1,LL; 2,LR; 3,RR; 4,RL.
 */
@@ -9,15 +9,15 @@
 #include "public_avl.h"
 #include "rotate.h"
 
-/*µ÷ÕûÆ½ºâ.post_insertion action 1.
+/*è°ƒæ•´å¹³è¡¡.post_insertion action 1.
 A is mubst. 
 B is A'child which is heavier,
 C is B's child which is heavier.
-Èë²Î:mubst,×îĞ¡²»Æ½ºâ×ÓÊ÷µÄ¸ù.
-key,²åÈë»òÕßÉ¾³ıµÄkey.
-need_balance,ĞèÒªÆ½ºâ.1,LL; 2,LR; 3,RR; 4,RL.
-·µ»ØÖµ:
-mubst,µ÷ÕûÆ½ºâµÄ×îĞ¡²»Æ½ºâ×ÓÊ÷.º¯Êı·µ»Ø.
+å…¥å‚:mubst,æœ€å°ä¸å¹³è¡¡å­æ ‘çš„æ ¹.
+key,æ’å…¥æˆ–è€…åˆ é™¤çš„key.
+need_balance,éœ€è¦å¹³è¡¡.1,LL; 2,LR; 3,RR; 4,RL.
+è¿”å›å€¼:
+mubst,è°ƒæ•´å¹³è¡¡çš„æœ€å°ä¸å¹³è¡¡å­æ ‘.å‡½æ•°è¿”å›.
 */
 AVLTree* rotate_and_balance(AVLTree *mubst,size_t key,int need_balance)
 {
@@ -26,7 +26,7 @@ AVLTree* rotate_and_balance(AVLTree *mubst,size_t key,int need_balance)
 	if(need_balance==1)
 	{
 		printf("Engaging LL type.\n");
-		//ÏÈµ÷Õûbf,ÔÙ×öĞı×ª
+		//å…ˆè°ƒæ•´bf,å†åšæ—‹è½¬
 		mubst->balance_factor=0;
 		mubst->lchild->balance_factor=0;
 		mubst=right_rotate_only(mubst);
@@ -44,17 +44,17 @@ AVLTree* rotate_and_balance(AVLTree *mubst,size_t key,int need_balance)
 	{
 		printf("Engaging LR type.\n");
 		AVLTree *rd=mubst->lchild->rchild;
-		if(key==rd->data)//µÚÒ»´Î´´½¨rd½áµã,±ÈÈç5678,50,60#
+		if(key==rd->data)//ç¬¬ä¸€æ¬¡åˆ›å»ºrdç»“ç‚¹,æ¯”å¦‚5678,50,60#
 		{
 			mubst->balance_factor=0;//A
 			mubst->lchild->balance_factor=0;//B
 		}
-		else if(key<rd->data)//²åÈëµ½Cl
+		else if(key<rd->data)//æ’å…¥åˆ°Cl
 		{
 			mubst->balance_factor=-1;//A
 			mubst->lchild->balance_factor=0;//B
 		}
-		else if(key>rd->data)//²åÈëµ½Cr
+		else if(key>rd->data)//æ’å…¥åˆ°Cr
 		{
 			mubst->balance_factor=0;//A
 			mubst->lchild->balance_factor=1;//B
@@ -67,18 +67,18 @@ AVLTree* rotate_and_balance(AVLTree *mubst,size_t key,int need_balance)
 	else if(need_balance==4)
 	{
 		printf("Engaging RL type.\n");
-		AVLTree *ld=mubst->rchild->lchild;//²»Æ½ºâ×ÓÊ÷µÄÓÒ×ÓÊ÷µÄ×óº¢×Ó
-		if(key==ld->data)//Ê×´Î´´½¨ld½áµã,±ÈÈç50,100,90#
+		AVLTree *ld=mubst->rchild->lchild;//ä¸å¹³è¡¡å­æ ‘çš„å³å­æ ‘çš„å·¦å­©å­
+		if(key==ld->data)//é¦–æ¬¡åˆ›å»ºldç»“ç‚¹,æ¯”å¦‚50,100,90#
 		{
 			mubst->balance_factor=0;//A
 			mubst->rchild->balance_factor=0;//B
 		}
-		else if(key<ld->data)//²åÈëµ½Cl
+		else if(key<ld->data)//æ’å…¥åˆ°Cl
 		{
 			mubst->balance_factor=0;//A
 			mubst->rchild->balance_factor=-1;//B
 		}
-		else if(key>ld->data)//²åÈëµ½Cr
+		else if(key>ld->data)//æ’å…¥åˆ°Cr
 		{
 			mubst->balance_factor=1;//A
 			mubst->rchild->balance_factor=0;//B
@@ -91,7 +91,7 @@ AVLTree* rotate_and_balance(AVLTree *mubst,size_t key,int need_balance)
 	return mubst;
 }
 
-//½«µ÷ÕûÍêµÄ×îĞ¡²»Æ½ºâ×ÓÊ÷µÄ¸ù,½Óµ½×æ¸¸½áµãÉÏ.post insertion action 2.
+//å°†è°ƒæ•´å®Œçš„æœ€å°ä¸å¹³è¡¡å­æ ‘çš„æ ¹,æ¥åˆ°ç¥–çˆ¶ç»“ç‚¹ä¸Š.post insertion action 2.
 AVLTree* junction(AVLTree *mubst,size_t key,std::stack<AVLTree *> &node_stack)
 {
 	if(!node_stack.empty())
@@ -116,14 +116,14 @@ return value:
 */
 AVLTree* update_bf_based_on_rule(AVLTree* node_p,size_t key,int &taller,int &need_balance)
 {
-	if(taller==1)//³¤¸ß²Å¿ÉÄÜ´¥·¢Ğı×ª
+	if(taller==1)//é•¿é«˜æ‰å¯èƒ½è§¦å‘æ—‹è½¬
 	{
 		if(key<node_p->data)//go left
 		{
 			switch(node_p->balance_factor)
 			{
-				case 1://²åÈëÇ°,×ó±ß±ÈÓÒ±ß¸ß,ĞèÒªÆ½ºâ.LL or LR
-//						node_p->balance_factor++;//ÔÊĞíbf==2µÄ´æÔÚ
+				case 1://æ’å…¥å‰,å·¦è¾¹æ¯”å³è¾¹é«˜,éœ€è¦å¹³è¡¡.LL or LR
+//						node_p->balance_factor++;//å…è®¸bf==2çš„å­˜åœ¨
 					if( node_p->lchild!=NULL &&key<node_p->lchild->data)//LL case,right rotate
 					{
 						need_balance=1;
@@ -136,12 +136,12 @@ AVLTree* update_bf_based_on_rule(AVLTree* node_p,size_t key,int &taller,int &nee
 					//need_balance=1;//need rotate function
 					taller=0;
 					break;
-				case -1://²åÈëÇ°,ÓÒ±ß±È×ó±ß¸ß;²åÈëºó,µÈ¸ß.absorbed.ÎŞĞèµ÷Õû.
-//						node_p->balance_factor++;//Îª0
+				case -1://æ’å…¥å‰,å³è¾¹æ¯”å·¦è¾¹é«˜;æ’å…¥å,ç­‰é«˜.absorbed.æ— éœ€è°ƒæ•´.
+//						node_p->balance_factor++;//ä¸º0
 					need_balance=0;
 					taller=0;
 					break;
-				case 0://²åÈëÇ°,×óÓÒÏàµÈ;²åÈëºó,×ó³¤¸ß,µ«²»ĞèĞı×ª,20241024				
+				case 0://æ’å…¥å‰,å·¦å³ç›¸ç­‰;æ’å…¥å,å·¦é•¿é«˜,ä½†ä¸éœ€æ—‹è½¬,20241024				
 					need_balance=0;
 					taller=1;
 					break;
@@ -152,13 +152,13 @@ AVLTree* update_bf_based_on_rule(AVLTree* node_p,size_t key,int &taller,int &nee
 		{
 			switch(node_p->balance_factor)
 			{
-				case 1://²åÈëÇ°,×ó±ß±ÈÓÒ±ß¸ß,²åÈëºó,µÈ¸ß.absorbed.ÎŞĞèµ÷Õû.
-//						node_p->balance_factor--;//Îª0
+				case 1://æ’å…¥å‰,å·¦è¾¹æ¯”å³è¾¹é«˜,æ’å…¥å,ç­‰é«˜.absorbed.æ— éœ€è°ƒæ•´.
+//						node_p->balance_factor--;//ä¸º0
 					need_balance=0;
 					taller=0;
 					break;					
-				case -1://²åÈëÇ°,ÓÒ±ß±È×ó±ß¸ß,ĞèÒªÆ½ºâ.RR or RL
-//						node_p->balance_factor--;//ÔÊĞíbf==-2µÄ´æÔÚ
+				case -1://æ’å…¥å‰,å³è¾¹æ¯”å·¦è¾¹é«˜,éœ€è¦å¹³è¡¡.RR or RL
+//						node_p->balance_factor--;//å…è®¸bf==-2çš„å­˜åœ¨
 					if(node_p->rchild!=NULL && key>node_p->rchild->data)//RR case, left rotate
 					{
 						need_balance=3;
@@ -171,7 +171,7 @@ AVLTree* update_bf_based_on_rule(AVLTree* node_p,size_t key,int &taller,int &nee
 					//need_balance=1;//need rotate function
 					taller=0;						
 					break;
-				case 0://²åÈëÇ°,×óÓÒÏàµÈ;²åÈëºó,ÓÒ³¤¸ß,µ«²»ĞèĞı×ª.20241024
+				case 0://æ’å…¥å‰,å·¦å³ç›¸ç­‰;æ’å…¥å,å³é•¿é«˜,ä½†ä¸éœ€æ—‹è½¬.20241024
 					need_balance=0;					
 					taller=1;
 					break;
@@ -185,16 +185,16 @@ AVLTree* update_bf_based_on_rule(AVLTree* node_p,size_t key,int &taller,int &nee
 AVLTree* post_insertion(AVLTree *T,size_t key,std::stack<AVLTree *> &node_stack,int &taller)
 {
 	AVLTree *mubst=T;//assuming parent is mubst
-	int need_balance=0;//0ÎŞĞèµ÷Õû;1,2,3,4,rotate type.
-	while(!node_stack.empty())//¸ù¾İ²åÈëÂ·¾¶,±éÀú¸¸½áµã
+	int need_balance=0;//0æ— éœ€è°ƒæ•´;1,2,3,4,rotate type.
+	while(!node_stack.empty())//æ ¹æ®æ’å…¥è·¯å¾„,éå†çˆ¶ç»“ç‚¹
 	{
-		mubst=node_stack.top();//È¡Õ»¶¥¶ø²»ÍË³ö.//¼ÙÉèparentÊÇmubst.assuming parent is mubst.min un-banlanced sub tree.
+		mubst=node_stack.top();//å–æ ˆé¡¶è€Œä¸é€€å‡º.//å‡è®¾parentæ˜¯mubst.assuming parent is mubst.min un-banlanced sub tree.
 		node_stack.pop();
-		mubst=update_bf_based_on_rule(mubst,key,taller,need_balance);//¸üĞÂ¸¸½áµãµÄbf	
-		if(need_balance>0)//rotate if necessary.¸ù¾İ¸üĞÂºóµÄ¸¸½áµãbf¾ö¶¨ÊÇ·ñĞı×ª,Ğı×ªºóĞèÒª¸ù¾İ¹æÔòÖ¸¶¨ÒÔparentÎª¸ùµÄ¸÷½áµãbf.
+		mubst=update_bf_based_on_rule(mubst,key,taller,need_balance);//æ›´æ–°çˆ¶ç»“ç‚¹çš„bf	
+		if(need_balance>0)//rotate if necessary.æ ¹æ®æ›´æ–°åçš„çˆ¶ç»“ç‚¹bfå†³å®šæ˜¯å¦æ—‹è½¬,æ—‹è½¬åéœ€è¦æ ¹æ®è§„åˆ™æŒ‡å®šä»¥parentä¸ºæ ¹çš„å„ç»“ç‚¹bf.
 		{
-//			printf("%zu's balance factor:%d.\n",mubst->data,mubst->balance_factor);//Èç¹ûÃ»ÓĞÎÊÌâ,´Ë¾ä²»²ÎÓëµ÷ÊÔ
-			mubst=rotate_and_balance(mubst,key,need_balance);//bf³¬³ö1»òÕß-1µÄ²Å»á½øĞĞĞı×ª.´¦Àíºótaller=0,²»ÔÙ³¤¸ß.
+//			printf("%zu's balance factor:%d.\n",mubst->data,mubst->balance_factor);//å¦‚æœæ²¡æœ‰é—®é¢˜,æ­¤å¥ä¸å‚ä¸è°ƒè¯•
+			mubst=rotate_and_balance(mubst,key,need_balance);//bfè¶…å‡º1æˆ–è€…-1çš„æ‰ä¼šè¿›è¡Œæ—‹è½¬.å¤„ç†åtaller=0,ä¸å†é•¿é«˜.
 			need_balance=0;	//taller=0;//have been balanced at this step.but update in update_bf_based_on_rule
 		}
 		//rotate complete.adjust the grand parent .Update the parent reference after rotations if it has changed
@@ -202,15 +202,15 @@ AVLTree* post_insertion(AVLTree *T,size_t key,std::stack<AVLTree *> &node_stack,
 		if(temp_node!=NULL)//root is mubst
 		{
 			mubst=temp_node;
-			return mubst;//¾ø´ó¶àÊıÊ±ºò¶¼ÔÚÕâÀï·µ»Ø
+			return mubst;//ç»å¤§å¤šæ•°æ—¶å€™éƒ½åœ¨è¿™é‡Œè¿”å›
 		}
 	}//end of while(!node_stack.empty())
-	return T;//µ±Ö»ÓĞ1¸ö»ò2¸ö½áµãÊ±,»áÖ´ĞĞµ½´Ë
+	return T;//å½“åªæœ‰1ä¸ªæˆ–2ä¸ªç»“ç‚¹æ—¶,ä¼šæ‰§è¡Œåˆ°æ­¤
 }
 
-/*Ê¹ÓÃ»ùÓÚ¹æÔòµÄ·½·¨²åÈëavl node,µü´ú
-·µ»ØÊÇ²åÈëºóµÄÕû¸öÊ÷µÄ¸ù.
-º¯ÊıÄÚµÄ±äÁ¿:taller,0,Ê÷Î´³¤¸ß;1Ê÷³¤¸ß,¿ÉÄÜĞèÒªµÄ½øÒ»²½Æ½ºâ´¦Àí,¸ù¾İÆ½ºâÒò×ÓÈ·¶¨.ÔÚÆäËûº¯ÊıÄÚÎªÒıÓÃ±äÁ¿
+/*ä½¿ç”¨åŸºäºè§„åˆ™çš„æ–¹æ³•æ’å…¥avl node,è¿­ä»£
+è¿”å›æ˜¯æ’å…¥åçš„æ•´ä¸ªæ ‘çš„æ ¹.
+å‡½æ•°å†…çš„å˜é‡:taller,0,æ ‘æœªé•¿é«˜;1æ ‘é•¿é«˜,å¯èƒ½éœ€è¦çš„è¿›ä¸€æ­¥å¹³è¡¡å¤„ç†,æ ¹æ®å¹³è¡¡å› å­ç¡®å®š.åœ¨å…¶ä»–å‡½æ•°å†…ä¸ºå¼•ç”¨å˜é‡
 */
 AVLTree *insert_avl_node_with_rule(AVLTree *T,size_t key)
 {
@@ -227,24 +227,21 @@ AVLTree *insert_avl_node_with_rule(AVLTree *T,size_t key)
 			p->data=key;//place here
 			p->lchild=p->rchild=NULL;
 			p->balance_factor=0;
-			taller=1;//³¤¸ß
-			//È·¶¨¸Ã½áµãµÄ¸¸½áµã
-			if(parent!=NULL)
-				printf("parent's data:%zu.",parent->data);
+			taller=1;//é•¿é«˜
+			//in the insertion scene, finished p connection with parent.ç¡®å®šè¯¥ç»“ç‚¹çš„çˆ¶ç»“ç‚¹
+			if(parent!=NULL)//could be DEBUG?
+				if(WHETHER_DEBUG)
+					printf("parent's data:%zu.",parent->data);
 			if(parent==NULL)
-				T=p;//pÊÇ¸ù½áµã
-			else if(key < parent->data)//key is less than parent->data
+				T=p;//pæ˜¯æ ¹ç»“ç‚¹
+			else if(key < parent->data)
 				parent->lchild=p;
-			else if(key > parent->data)//key is greater than praent->data
+			else if(key > parent->data)
 				parent->rchild=p;
-			else//(EQ(key,parent->data))
-			{//should not to do this
-				printf("should no to do this line.");
-				break;
-			}
+			//impossible key == parent->data
 			break;
 		}
-		else if( key< p->data )//Ğ¡ÓÚÊ±,Ïò×ó×ß
+		else if( key< p->data )//å°äºæ—¶,å‘å·¦èµ°
 		{
 			node_stack.push(p);
 			parent=p;
@@ -256,13 +253,13 @@ AVLTree *insert_avl_node_with_rule(AVLTree *T,size_t key)
 			parent=p;
 			p=p->rchild;
 		}
-		else //if( key==p->data )//µÈÓÚÊ±ÎŞĞè²åÈë
+		else //if( key==p->data )//ç­‰äºæ—¶æ— éœ€æ’å…¥
 		{
-			printf("Equal and DO NOT insert.\n");
+			printf("Equal and DO NOT inser:%zu.\n",key);
 			break;
 		}
 	}//end of while
 
-	AVLTree *mubst=post_insertion(T,key,node_stack,taller);//²åÈëÖ®ºóµÄÊÂÎñ,µ÷ÕûÆ½ºâ,Á¬½Ó×æ¸¸½áµãºÍ¸¸½áµã
+	AVLTree *mubst=post_insertion(T,key,node_stack,taller);//æ’å…¥ä¹‹åçš„äº‹åŠ¡,è°ƒæ•´å¹³è¡¡,è¿æ¥ç¥–çˆ¶ç»“ç‚¹å’Œçˆ¶ç»“ç‚¹
 	return mubst;
 }

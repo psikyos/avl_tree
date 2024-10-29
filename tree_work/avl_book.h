@@ -1,11 +1,11 @@
 /*avl_book.h
-Êı¾İ½á¹¹ÊéÖĞµÄ·½·¨
+æ•°æ®ç»“æ„ä¹¦ä¸­çš„æ–¹æ³•
 */
 #include "public_avl.h"
 /*
-µ¥´Î×óĞı×ª,±ÈÊé±¾ÓĞËù¸Ä±ä,·µ»ØÖµÓÉº¯Êı·µ»ØÖµ·µ»Ø
-RRÀàĞÍµ¥´ÎĞı×ªÊÊÓÃ
-±¾Ğı×ªº¯Êı²»µ÷Õûbalance factor
+å•æ¬¡å·¦æ—‹è½¬,æ¯”ä¹¦æœ¬æœ‰æ‰€æ”¹å˜,è¿”å›å€¼ç”±å‡½æ•°è¿”å›å€¼è¿”å›
+RRç±»å‹å•æ¬¡æ—‹è½¬é€‚ç”¨
+æœ¬æ—‹è½¬å‡½æ•°ä¸è°ƒæ•´balance factor
 */
 AVLTree *left_rotate_mod_book(AVLTree *root)
 {
@@ -17,9 +17,9 @@ AVLTree *left_rotate_mod_book(AVLTree *root)
 } 
 
 /*
-µ¥´ÎÓÒĞı×ª,±ÈÊé±¾ÓĞËù¸Ä±ä,·µ»ØÖµÓÉº¯Êı·µ»ØÖµ·µ»Ø
-LLÀàĞÍµ¥´ÎĞı×ªÊÊÓÃ
-±¾Ğı×ªº¯Êı²»µ÷Õûbalance factor
+å•æ¬¡å³æ—‹è½¬,æ¯”ä¹¦æœ¬æœ‰æ‰€æ”¹å˜,è¿”å›å€¼ç”±å‡½æ•°è¿”å›å€¼è¿”å›
+LLç±»å‹å•æ¬¡æ—‹è½¬é€‚ç”¨
+æœ¬æ—‹è½¬å‡½æ•°ä¸è°ƒæ•´balance factor
 */
 AVLTree *right_rotate_mod_book(AVLTree *root)
 {
@@ -30,11 +30,11 @@ AVLTree *right_rotate_mod_book(AVLTree *root)
 	return new_root;
 }
 
-//×óÆ½ºâ´¦Àí,°üº¬LLºÍLR
+//å·¦å¹³è¡¡å¤„ç†,åŒ…å«LLå’ŒLR
 AVLTree *left_balance(AVLTree *T)
 {
-	AVLTree *lc=T->lchild;//TµÄ×óº¢×Ó½áµã
-	switch(lc->balance_factor)//²åÈë½áµãºóÇÒ¸üĞÂµÄÆ½ºâÒò×Ó
+	AVLTree *lc=T->lchild;//Tçš„å·¦å­©å­ç»“ç‚¹
+	switch(lc->balance_factor)//æ’å…¥ç»“ç‚¹åä¸”æ›´æ–°çš„å¹³è¡¡å› å­
 	{
 		case 1://LL
 			printf("%zu(prev:%d), Engage LL.\n",T->data,T->balance_factor);
@@ -43,22 +43,22 @@ AVLTree *left_balance(AVLTree *T)
 			T->lchild->balance_factor=0;
 			break;
 		case -1://LR
-			AVLTree * rd=lc->rchild;//TµÄ×óº¢×ÓµÄÓÒº¢×Ó½áµã
-			//ÏÈµ÷ÕûÆ½ºâ,ÔÙ½øĞĞĞı×ª
+			AVLTree * rd=lc->rchild;//Tçš„å·¦å­©å­çš„å³å­©å­ç»“ç‚¹
+			//å…ˆè°ƒæ•´å¹³è¡¡,å†è¿›è¡Œæ—‹è½¬
 			printf("\nEnter LR.%zu(%d)\n",rd->data,rd->balance_factor);
 			switch(rd->balance_factor)
 			{	
-				case 1://ÔÚCL²åÈë
+				case 1://åœ¨CLæ’å…¥
 					printf("%zu(prev:%d), Engage LR(Cl).\n",T->data,T->balance_factor);
 					T->balance_factor=-1;
 					lc->balance_factor=0;
 					break;
-				case -1://ÔÚCr²åÈë
+				case -1://åœ¨Cræ’å…¥
 					printf("%zu(prev:%d), Engage LR(Cr).\n",T->data,T->balance_factor);
 					T->balance_factor=0;
 					lc->balance_factor=1;
 					break;					
-				case 0://rdÊÇ²åÈëµÄ½áµã.LR½¨Á¢C½áµãÊ±.
+				case 0://rdæ˜¯æ’å…¥çš„ç»“ç‚¹.LRå»ºç«‹Cç»“ç‚¹æ—¶.
 					printf("\n\nLR,building C=%zu(%d)\n\n",T->data,T->balance_factor);
 					T->balance_factor=0;
 					lc->balance_factor=0;
@@ -72,11 +72,11 @@ AVLTree *left_balance(AVLTree *T)
 	return T;
 }
 
-//ÓÒÆ½ºâ´¦Àí,°üº¬RRºÍRL
+//å³å¹³è¡¡å¤„ç†,åŒ…å«RRå’ŒRL
 AVLTree *right_balance(AVLTree *T)
 {
-	AVLTree *rc=T->rchild;//TµÄÓÒº¢×Ó½áµã
-	switch(rc->balance_factor)//²åÈë½áµãºóÇÒ¸üĞÂµÄÆ½ºâÒò×Ó
+	AVLTree *rc=T->rchild;//Tçš„å³å­©å­ç»“ç‚¹
+	switch(rc->balance_factor)//æ’å…¥ç»“ç‚¹åä¸”æ›´æ–°çš„å¹³è¡¡å› å­
 	{
 		case -1://RR
 			printf("%zu(prev:%d), Engage RR.\n",T->data,T->balance_factor);
@@ -85,7 +85,7 @@ AVLTree *right_balance(AVLTree *T)
 			rc->balance_factor=0;
 			break;
 		case 1://RL
-			AVLTree *ld=rc->lchild;////TµÄÓÒº¢×ÓµÄ×óº¢×Ó½áµã
+			AVLTree *ld=rc->lchild;////Tçš„å³å­©å­çš„å·¦å­©å­ç»“ç‚¹
 			switch(ld->balance_factor)
 			{
 				case 1://CL
@@ -98,7 +98,7 @@ AVLTree *right_balance(AVLTree *T)
 					T->balance_factor=1;
 					rc->balance_factor=0;
 					break;
-				case 0://RLĞı×ªÖĞÖĞ½¨Á¢C½áµãÊ±
+				case 0://RLæ—‹è½¬ä¸­ä¸­å»ºç«‹Cç»“ç‚¹æ—¶
 					printf("\n\nRL,building C=%zu(%d)\n\n",T->data,T->balance_factor);
 					T->balance_factor=0;
 					rc->balance_factor=0;
@@ -112,11 +112,11 @@ AVLTree *right_balance(AVLTree *T)
 	return T;
 }
 
-/*½Ì¿ÆÊéÉÏÊ¹ÓÃµİ¹é²åÈëAVLÊ÷,²¢µ÷Õû½áµã.
-·µ»ØÖµ:
-AVLTreeÖ¸Õë,Ò»¸ö½á¹¹Ìå
-²ÎÊı:
-taller³¤¸ß±êÖ¾,1,³¤¸ß;0,Î´³¤¸ß.ÓÉ²ÎÊı·µ»Ø.
+/*æ•™ç§‘ä¹¦ä¸Šä½¿ç”¨é€’å½’æ’å…¥AVLæ ‘,å¹¶è°ƒæ•´ç»“ç‚¹.
+è¿”å›å€¼:
+AVLTreeæŒ‡é’ˆ,ä¸€ä¸ªç»“æ„ä½“
+å‚æ•°:
+talleré•¿é«˜æ ‡å¿—,1,é•¿é«˜;0,æœªé•¿é«˜.ç”±å‚æ•°è¿”å›.
 */
 AVLTree * insert_avl_node_recu_book(AVLTree *T,size_t key,int &taller)
 {
@@ -131,24 +131,24 @@ AVLTree * insert_avl_node_recu_book(AVLTree *T,size_t key,int &taller)
 	else
 	{
 		if(key<T->data)//go left
-		{//Ïò×ó×ÓÊ÷²åÈë
-			T->lchild=insert_avl_node_recu_book(T->lchild,key,taller);//ÏÈ²åÈë
+		{//å‘å·¦å­æ ‘æ’å…¥
+			T->lchild=insert_avl_node_recu_book(T->lchild,key,taller);//å…ˆæ’å…¥
 			if(T->lchild==NULL) 
 				return NULL;
-			//ÔÙµ÷ÕûÆ½ºâ
+			//å†è°ƒæ•´å¹³è¡¡
 			if(taller)//it does insert a new node in left substree
 			{
 				switch(T->balance_factor)
 				{
-					case 1://²åÈëÇ°,×ó×ÓÊ÷¸ß;²åÈëºó,ĞèÒª×óÆ½ºâ´¦Àí,Ê÷²»ÔÙ³¤¸ß
-						T=left_balance(T);//¾ßÌåÊÇLL or LR
-						taller=false;//Æ½ºâÖ®ºó,Ê÷²»ÔÙ³¤¸ß
+					case 1://æ’å…¥å‰,å·¦å­æ ‘é«˜;æ’å…¥å,éœ€è¦å·¦å¹³è¡¡å¤„ç†,æ ‘ä¸å†é•¿é«˜
+						T=left_balance(T);//å…·ä½“æ˜¯LL or LR
+						taller=false;//å¹³è¡¡ä¹‹å,æ ‘ä¸å†é•¿é«˜
 						break;
-					case 0://²åÈëÇ°,×óÓÒµÈ¸ß;²åÈëºó,×ó×ÓÊ÷³¤¸ß
+					case 0://æ’å…¥å‰,å·¦å³ç­‰é«˜;æ’å…¥å,å·¦å­æ ‘é•¿é«˜
 						T->balance_factor=1;
 						taller=true;
 						break;
-					case -1://²åÈëÇ°,ÓÒ×ÓÊ÷¸ß;²åÈëºó,×óÓÒµÈ¸ß
+					case -1://æ’å…¥å‰,å³å­æ ‘é«˜;æ’å…¥å,å·¦å³ç­‰é«˜
 						T->balance_factor=0;
 						taller=false;
 						break;
@@ -156,24 +156,24 @@ AVLTree * insert_avl_node_recu_book(AVLTree *T,size_t key,int &taller)
 			}
 		}//end of go left
 		else if(key>T->data)//go right
-		{//ÏòÓÒ×ÓÊ÷²åÈë
-			T->rchild=insert_avl_node_recu_book(T->rchild,key,taller);//ÏÈ²åÈë
+		{//å‘å³å­æ ‘æ’å…¥
+			T->rchild=insert_avl_node_recu_book(T->rchild,key,taller);//å…ˆæ’å…¥
 			if(T->rchild==NULL)
 				return NULL;
-			//ÔÙµ÷ÕûÆ½ºâ
+			//å†è°ƒæ•´å¹³è¡¡
 			if(taller)//it does insert a new node in right substee
 			{
 				switch(T->balance_factor)
 				{
-					case 1://²åÈëÇ°,×ó×ÓÊ÷¸ß;²åÈëºó,×óÓÒµÈ¸ß
+					case 1://æ’å…¥å‰,å·¦å­æ ‘é«˜;æ’å…¥å,å·¦å³ç­‰é«˜
 						T->balance_factor=0;
 						taller=false;
 						break;
-					case 0://²åÈëÇ°,×óÓÒµÈ¸ß;²åÈëºó,ÓÒ×ÓÊ÷¸ß,Ê÷³¤¸ß
+					case 0://æ’å…¥å‰,å·¦å³ç­‰é«˜;æ’å…¥å,å³å­æ ‘é«˜,æ ‘é•¿é«˜
 						T->balance_factor=-1;
 						taller=true;
 						break;
-					case -1://²åÈëÇ°,ÓÒ×ÓÊ÷¸ß;²åÈëºó,ĞèÒªÓÒÆ½ºâ´¦Àí,Ê÷²»ÔÙ³¤¸ß
+					case -1://æ’å…¥å‰,å³å­æ ‘é«˜;æ’å…¥å,éœ€è¦å³å¹³è¡¡å¤„ç†,æ ‘ä¸å†é•¿é«˜
 						T=right_balance(T);//RR or RL
 						taller=false;
 						break;

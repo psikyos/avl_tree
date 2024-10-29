@@ -1,6 +1,6 @@
 /*
 avl tree remove node.iterative,based on rule.
-»ùÓÚÑĞµÀÄÑ5.14¶ş²æÅÅĞòÊ÷,but use rule not tree height.
+åŸºäºç ”é“éš¾5.14äºŒå‰æ’åºæ ‘,but use rule not tree height.
 https://www.geeksforgeeks.org/deletion-in-an-avl-tree/
 https://www.cs.usfca.edu/~galles/visualization/AVLtree.html
 https://dl.acm.org/doi/10.1145/800197.806043
@@ -25,7 +25,7 @@ if shorten is trigger, balance_factor updated will NOT be postponed to rule jude
 shorter=0, tree height remains unchanged; 
 shorter=1, height got shorten, should be the deletion scene;
 shorter=2, the parent trail to process bf. It indicates the process is not the current removing situation, means not the deletion scene,it's the parent trail.
-shorter=2,Ö¸Ê¾µ±Ç°²»ÊÇ½áµãÉ¾³ıÏÖ³¡,¶øÇÒ¶ÑÕ»ÖĞµÄÄ³¸ö½áµã,¿ÉÄÜĞèÒªµ÷Õûbf
+shorter=2,æŒ‡ç¤ºå½“å‰ä¸æ˜¯ç»“ç‚¹åˆ é™¤ç°åœº,è€Œä¸”å †æ ˆä¸­çš„æŸä¸ªç»“ç‚¹,å¯èƒ½éœ€è¦è°ƒæ•´bf
 
 After deletion, adjust bf according to shorter,direction and rules, and trace the source all the way to the root node to complete the balance.It will update bf until the last parent-node(root).
 add dir_stack, indicator the direction of left or right. 
@@ -139,8 +139,8 @@ int shorter_one_child(AVLTree* node_p,std::stack<AVLTree *> &node_stack,std::sta
 }
 
 /*assuming node_p has 2 children. Remove node_p and replace it by child node in the sub tree.
- using inorder successor(ÖĞĞòºó¼Ì,ios for short) to replace node_p
- using inorder predecessor(ÖĞĞòÇ°Çı,ipd for short)to replace node_p
+ using inorder successor(ä¸­åºåç»§,ios for short) to replace node_p
+ using inorder predecessor(ä¸­åºå‰é©±,ipd for short)to replace node_p
 shorter should be judge after node_p's bf get changed
 return value:
 1.shoter sign, from function return value
@@ -151,7 +151,7 @@ int shorter_double_children(AVLTree *node_p,std::stack<AVLTree *> &node_stack,st
 	AVLTree *parent_ipd=NULL;//as a function scope global variable
 	switch(replace_method_inorder)
 	{
-		case IPD://iorder predecessor,find the MAX value in the node_p's left child.ÖĞĞòÇ°Çı,ÔÚnode_p×ó×ÓÊ÷ÖĞÕÒµ½×î´óÖµ.
+		case IPD://iorder predecessor,find the MAX value in the node_p's left child.ä¸­åºå‰é©±,åœ¨node_på·¦å­æ ‘ä¸­æ‰¾åˆ°æœ€å¤§å€¼.
 		{
 			parent_ipd=node_p;
 			AVLTree *ipd=max_value_node(node_p->lchild,parent_ipd,node_stack,dir_stack);//ipd MUST NOT have rchild. ipd is max child in node_p's left subtree.
@@ -189,7 +189,7 @@ int shorter_double_children(AVLTree *node_p,std::stack<AVLTree *> &node_stack,st
 			free(ipd);
 			break;
 		}//end of case IPD
-		case IOS://inorder successor, find the MIN value in the node_p's right child.ÖĞĞòºó¼Ì.ÔÚÓÒ×ÓÊ÷ÖĞÕÒµ½×îĞ¡Öµ
+		case IOS://inorder successor, find the MIN value in the node_p's right child.ä¸­åºåç»§.åœ¨å³å­æ ‘ä¸­æ‰¾åˆ°æœ€å°å€¼
 		{
 			AVLTree *parent_ios=node_p;//node_p may be the parent of ios
 			AVLTree *ios=min_value_node(node_p->rchild,parent_ios,node_stack,dir_stack);//ios is node_p's inorder successor.ios MUST NOT have left child.
@@ -394,7 +394,7 @@ AVLTree* pd_rotate_using_rule(AVLTree *mubst,int need_balance)//mubst's bf has b
 			AVLTree *ld=mubst->lchild->rchild;			
 			switch(ld->balance_factor)
 			{//case 0 should have 2 cases.But there is no LL mixed case,because it has been blocked by pd_udapte_bf_rule
-				case 0://xµÈÖØÓĞ×ÓºÍxµÈÖØÎŞ×Ó¶¼ÊÇÒ»ÑùµÄ½á¹û.Same result when x with subtrees and x without subtrees, whose subtrees are same tree height.
+				case 0://xç­‰é‡æœ‰å­å’Œxç­‰é‡æ— å­éƒ½æ˜¯ä¸€æ ·çš„ç»“æœ.Same result when x with subtrees and x without subtrees, whose subtrees are same tree height.
 					mubst->balance_factor=0;
 					mubst->lchild->balance_factor=0;
 					break;
@@ -463,7 +463,7 @@ AVLTree* pd_rotate_using_rule(AVLTree *mubst,int need_balance)//mubst's bf has b
 IN parameter:
 1....
 5.indicator_of_children_case: double children case.0,no; 1,yes, currently we engage double children case.
-OUT parameter£º
+OUT parameterï¼š
 1.new parent,based on pd_junction_rule' value,new tree root,or NULL(during process).
 	If return at end,root is NULL.As function return value.
 2.node_stack,parent node stack in trail of removed node,return as function reference.No further use.
@@ -525,14 +525,14 @@ AVLTree* remove_avl_tree_node_ydn_rule(AVLTree *T,size_t key,int replace_method_
 		2.2 If node has 1 child, the child will replace the removed node. Shorter should always be 1.
 		2.3 If node has 2 children, ipd or ios node will replace removed node.
 	update the relative node bf in deletion scene.
-	(ËÑË÷Â·¾¶ÉÏµÄ×æ¸¸½áµã²»ÔÚÉ¾³ıÏÖ³¡¸üĞÂ,ÔÚºóĞø´¦Àí¶ÑÕ»Ê±¸üĞÂ,¼´´Ó¶ÑÕ»È¡³ö½áµã,¸üĞÂÆäbf,±ØÒªÊ±Ğı×ª.)
+	(æœç´¢è·¯å¾„ä¸Šçš„ç¥–çˆ¶ç»“ç‚¹ä¸åœ¨åˆ é™¤ç°åœºæ›´æ–°,åœ¨åç»­å¤„ç†å †æ ˆæ—¶æ›´æ–°,å³ä»å †æ ˆå–å‡ºç»“ç‚¹,æ›´æ–°å…¶bf,å¿…è¦æ—¶æ—‹è½¬.)
 The grandparent node on the search path is not updated at the deletion scene, but is updated when the stack is subsequently processed, 
 that is, the node is taken from the stack, its bf is updated, and rotated if necessary.
-	3.´Ó±»É¾³ıµÄ½áµã¿ªÊ¼ÍùÉÏ²éÕÒ²¢¸üĞÂ¸÷×æÏÈ½áµãbf,ÕÒµ½µÚ1¸ö²»Æ½ºâ½áµãz,ÒÔ¼°zÏà¹ØµÄyºÍx,ÈôÊÇ×îĞ¡²»Æ½ºâ×ÓÊ÷,ÈÔÈ»·ÖÎª4Àà,LL,RR,LR,RL,
-		Ğı×ªÊ¹Ö®Æ½ºâ
+	3.ä»è¢«åˆ é™¤çš„ç»“ç‚¹å¼€å§‹å¾€ä¸ŠæŸ¥æ‰¾å¹¶æ›´æ–°å„ç¥–å…ˆç»“ç‚¹bf,æ‰¾åˆ°ç¬¬1ä¸ªä¸å¹³è¡¡ç»“ç‚¹z,ä»¥åŠzç›¸å…³çš„yå’Œx,è‹¥æ˜¯æœ€å°ä¸å¹³è¡¡å­æ ‘,ä»ç„¶åˆ†ä¸º4ç±»,LL,RR,LR,RL,
+		æ—‹è½¬ä½¿ä¹‹å¹³è¡¡
 Starting from the deleted node, search upwards and update each ancestor node's bf, find the first unbalanced node z, and the y and x related to z.
 If it is the MUBST, classfied and rotate to balance. The classified are 4 types, LL,RR,LR,RL.
-	4.´Óz¿ªÊ¼¼ÌĞø»ØËİ,ÕÒµ½Â·¾¶ÉÏ²»Æ½ºâµÄ¸÷¼¶¸¸½áµã,²¢µ÷ÕûÆ½ºâ,Ö±µ½¸ù½áµã,µ÷Õû½áÊø.
+	4.ä»zå¼€å§‹ç»§ç»­å›æº¯,æ‰¾åˆ°è·¯å¾„ä¸Šä¸å¹³è¡¡çš„å„çº§çˆ¶ç»“ç‚¹,å¹¶è°ƒæ•´å¹³è¡¡,ç›´åˆ°æ ¹ç»“ç‚¹,è°ƒæ•´ç»“æŸ.
 	Start backtracking from z, find the unbalanced parent nodes(MUBST) at all levels on the path, and adjust the balance until the root node is reached.
 	*/
 	AVLTree *parent=NULL;

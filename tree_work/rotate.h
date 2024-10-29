@@ -1,5 +1,5 @@
 /*rotate.h
-Ðý×ª´¦Àí*/
+æ—‹è½¬å¤„ç†*/
 #include "public_avl.h"
 #include "height_cnt.h"
 
@@ -12,19 +12,19 @@ AVLTree * right_rotate(AVLTree *root)
 	new_root->rchild=root;
 	root->lchild=moved_node;
 
-	//ÐÞ¸Äbalance.new_rootºÍroot±äÁ¿
-	//1.´¦Àínew_rootµÄbf
+	//ä¿®æ”¹balance.new_rootå’Œrootå˜é‡
+	//1.å¤„ç†new_rootçš„bf
 	size_t left=height_of_tree(new_root->lchild);
 	size_t right=height_of_tree(new_root->rchild);
 	new_root->balance_factor=left-right;
-	//2.´¦ÀírootµÄbf
+	//2.å¤„ç†rootçš„bf
 	left=height_of_tree(root->lchild);
 	right=height_of_tree(root->rchild);
 	root->balance_factor=left-right;
 	return new_root;
 }
 
-AVLTree * left_rotate(AVLTree *root)//Ê¹ÓÃ·µ»Ø½áµãÖµµÄ·½·¨,´¦Àí¸¸½áµãµÄÎÊÌâ.¸üÐÂÁËrootºÍnew_rootµÄbf
+AVLTree * left_rotate(AVLTree *root)//ä½¿ç”¨è¿”å›žç»“ç‚¹å€¼çš„æ–¹æ³•,å¤„ç†çˆ¶ç»“ç‚¹çš„é—®é¢˜.æ›´æ–°äº†rootå’Œnew_rootçš„bf
 {
 	AVLTree *new_root=root->rchild;
 	AVLTree *moved_node=new_root->lchild;
@@ -44,8 +44,8 @@ AVLTree * left_rotate(AVLTree *root)//Ê¹ÓÃ·µ»Ø½áµãÖµµÄ·½·¨,´¦Àí¸¸½áµãµÄÎÊÌâ.¸üÐÂ
 }
 
 /*
-µ¥´Î×óÐý×ª,RRÇé¿öÊÊÓÃ
-·µ»ØÐý×ªÍê³ÉºóµÄÐÂ½áµãnew_root
+å•æ¬¡å·¦æ—‹è½¬,RRæƒ…å†µé€‚ç”¨
+è¿”å›žæ—‹è½¬å®ŒæˆåŽçš„æ–°ç»“ç‚¹new_root
 */
 AVLTree *left_rotate_only(AVLTree *root)
 {
@@ -57,8 +57,8 @@ AVLTree *left_rotate_only(AVLTree *root)
 }
 
 /*
-µ¥´ÎÓÒÐý×ª,LLÇé¿öÊÊÓÃ
-·µ»ØÐý×ªÍê³ÉºóµÄÐÂ½áµãnew_root
+å•æ¬¡å³æ—‹è½¬,LLæƒ…å†µé€‚ç”¨
+è¿”å›žæ—‹è½¬å®ŒæˆåŽçš„æ–°ç»“ç‚¹new_root
 */
 AVLTree *right_rotate_only(AVLTree *root)
 {
